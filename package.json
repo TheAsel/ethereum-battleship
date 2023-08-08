@@ -5,7 +5,8 @@
     "author": "TheAsel",
     "license": "MIT",
     "dependencies": {
-        "merkletreejs": "0.3.10"
+        "merkletreejs": "^0.3.10",
+        "@openzeppelin/contracts": "^4.9.3"
     },
     "devDependencies": {
         "truffle-assertions": "^0.9.2"

@@ -1,0 +1,79 @@
+{
+  "contractName": "HandleGames",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/HandleGames.sol\":\"HandleGames\"},\"evmVersion\":\"shanghai\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/HandleGames.sol\":{\"keccak256\":\"0x527b9f2d76395b39f0dd44cedb5d50a7134af6b86407c3db0f5b0fb4a49ca13a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://c434265c1059cfae78b2af8cdad456e7fe7753e375dd8982630e26bbbb449486\",\"dweb:/ipfs/QmbuZSzW9BxJFuNkL71oJh9HpB9EaEYdw6SRrDc6rEpLmM\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600e575f80fd5b50603e80601a5f395ff3fe60806040525f80fdfea264697066735822122083b886cc5c0d045e6756ba32b066cc6597e78582878ea28c8eddbaf263f4690464736f6c63430008140033",
+  "deployedBytecode": "0x60806040525f80fdfea264697066735822122083b886cc5c0d045e6756ba32b066cc6597e78582878ea28c8eddbaf263f4690464736f6c63430008140033",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "66:27:1:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "66:27:1:-:0;;;;;",
+  "source": "// SPDX-License-Identifier: MIT\npragma solidity >=0.4.22 <0.9.0;\n\ncontract HandleGames {\n  \n}\n",
+  "sourcePath": "/home/asel/Documents/GitHub/ethereum-battleship/contracts/HandleGames.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/HandleGames.sol",
+    "exportedSymbols": {
+      "HandleGames": [
+        5
+      ]
+    },
+    "id": 6,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 4,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.4",
+          ".22",
+          "<",
+          "0.9",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "32:32:1"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "HandleGames",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 5,
+        "linearizedBaseContracts": [
+          5
+        ],
+        "name": "HandleGames",
+        "nameLocation": "75:11:1",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 6,
+        "src": "66:27:1",
+        "usedErrors": [],
+        "usedEvents": []
+      }
+    ],
+    "src": "32:62:1"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.20+commit.a1b79de6.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.14",
+  "updatedAt": "2023-08-08T13:08:28.248Z",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}
