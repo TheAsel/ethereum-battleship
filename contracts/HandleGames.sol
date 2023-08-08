@@ -33,7 +33,7 @@ contract HandleGames {
 
   // checks if there are available games
   modifier gamesAvailable() {
-    require(gamesArray.lenght > 0, "No games available");
+    require(gamesArray.length > 0, "No games available");
     _;
   }
 
@@ -43,7 +43,7 @@ contract HandleGames {
     Battleship newGame = new Battleship(msg.sender);
     joinableGames[newGame] = true;
     gamesArray.push(newGame);
-    gamesIndex(newGame) = gamesArray.lenght - 1;
+    gamesIndex[newGame] = gamesArray.length - 1;
     emit GameCreated(newGame, msg.sender);
   }
 
@@ -58,8 +58,8 @@ contract HandleGames {
   function joinRandomGame() external gamesAvailable() {
     uint256 index = random();
     bool found = false;
-    for(uint256 i = 0; i < gamesArray.lenght; i++) {
-      Battleship game = gamesArray[(index + i) % gamesArray.lenght];
+    for(uint256 i = 0; i < gamesArray.length; i++) {
+      Battleship game = gamesArray[(index + i) % gamesArray.length];
       if(game.playerOne() != msg.sender) {
         found = true;
         game.addPlayerTwo(msg.sender);
@@ -78,10 +78,10 @@ contract HandleGames {
   function removeGame(Battleship game) internal {
     delete joinableGames[game];
     uint256 index = gamesIndex[game];
-    if(index == gamesArray.lenght - 1 || gamesArray.lenght == 1) {
+    if(index == gamesArray.length - 1 || gamesArray.length == 1) {
       gamesArray.pop();
     } else {
-      gamesArray[index] = gamesArray[gamesArray.lenght - 1];
+      gamesArray[index] = gamesArray[gamesArray.length - 1];
       gamesArray.pop();
       gamesIndex[gamesArray[index]] = index;
     }
@@ -89,8 +89,8 @@ contract HandleGames {
   }
 
   // returns a random value of gamesArray.lenght
-  function random() internal view returns (uint256) {
+  function random() internal returns (uint256) {
     nonce++;
-    return uint256(keccak256(abi.encodePacked(block.difficulty, now, nonce))) % gamesArray.lenght;
+    return uint256(keccak256(abi.encodePacked(block.prevrandao, block.timestamp, nonce))) % gamesArray.length;
   }
 }
