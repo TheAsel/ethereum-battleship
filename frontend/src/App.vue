@@ -1,13 +1,8 @@
 <script setup>
 import { RouterView } from 'vue-router'
-import { AccountStore, HandleGamesContract, BattleshipContract } from '@/stores/store'
+import { AccountStore } from '@/stores/store'
 import { useMetaMaskWallet } from 'vue-connect-wallet'
-import HandleGames from '../../build/contracts/HandleGames.json'
-import Battleship from '../../build/contracts/Battleship.json'
-import Web3 from 'web3'
 const address = AccountStore()
-const handleGamesContract = HandleGamesContract()
-const battleshipContract = BattleshipContract()
 const wallet = useMetaMaskWallet()
 
 const connect = async () => {
@@ -16,31 +11,11 @@ const connect = async () => {
     console.log('An error occurred' + accounts)
   }
   address.updateAccount(accounts[0])
-  contractHandleGames()
-  // contractBattleship()
 }
 
 const switchAccount = async () => {
   await wallet.switchAccounts()
   connect()
-}
-
-const contractHandleGames = async () => {
-  let web3 = new Web3(window.ethereum)
-  const networkID = await web3.eth.net.getId()
-  const { abi } = HandleGames
-  const contractAddress = HandleGames.networks[networkID].address
-  const contract = new web3.eth.Contract(abi, contractAddress)
-  handleGamesContract.updateContract(contract)
-}
-
-const contractBattleship = async () => {
-  let web3 = new Web3(window.ethereum)
-  const networkID = await web3.eth.net.getId()
-  const { abi } = Battleship
-  const contractAddress = Battleship.networks[networkID].address
-  const contract = new web3.eth.Contract(abi, contractAddress)
-  battleshipContract.updateContract(contract)
 }
 </script>
 

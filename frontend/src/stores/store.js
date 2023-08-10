@@ -11,27 +11,3 @@ export const AccountStore = defineStore('account', {
     }
   }
 })
-
-export const HandleGamesContract = defineStore('handlegamecontract', {
-  state: () => ({ contract: '' }),
-  getters: {
-    getContract: (state) => state.contract
-  },
-  actions: {
-    updateContract(newContract) {
-      this.contract = newContract
-    }
-  }
-})
-
-export const BattleshipContract = defineStore('battleshipcontract', {
-  state: () => ({ contract: '' }),
-  getters: {
-    getContract: (state) => state.contract
-  },
-  actions: {
-    updateContract(newContract) {
-      this.contract = newContract
-    }
-  }
-})

@@ -1,7 +1,22 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { AccountStore } from '@/stores/store'
+import { contractHandleGames, getEthAccounts } from '@/utils.js'
 const account = AccountStore()
+
+const createGame = async () => {
+  const accounts = await getEthAccounts()
+  const contract = await contractHandleGames()
+  contract.methods.createGame().send({ from: accounts[0] })
+  console.log('game created')
+}
+
+const joinRandomGame = async () => {
+  const accounts = await getEthAccounts()
+  const contract = await contractHandleGames()
+  contract.methods.joinRandomGame().send({ from: accounts[0] })
+  console.log('random game joined')
+}
 </script>
 
 <template>
@@ -26,11 +41,15 @@ const account = AccountStore()
       </div>
       <div class="col-6">
         <div v-if="account.getWallet" class="d-grid gap-4 col-8 mx-auto">
-          <button class="btn btn-success" type="button">Create a new game</button>
+          <button class="btn btn-success" type="button" @click="createGame">
+            Create a new game
+          </button>
           <RouterLink class="btn btn-success" type="button" to="/join"
             >Join a game by ID</RouterLink
           >
-          <button class="btn btn-success" type="button">Join a random game</button>
+          <button class="btn btn-success" type="button" @click="joinRandomGame">
+            Join a random game
+          </button>
         </div>
         <div v-else class="d-grid gap-4 col-8 mx-auto">
           <h3 class="text-center">Connect to MetaMask to play!</h3>
