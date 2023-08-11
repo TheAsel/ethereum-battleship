@@ -3,7 +3,7 @@ import { RouterLink } from 'vue-router'
 import { AccountStore } from '@/stores/store'
 import { watchEffect } from 'vue'
 import router from '../router'
-import { contractHandleGames, getEthAccounts } from '@/utils.js'
+import { contractHandleGames, getEthAccounts, showToast } from '@/utils.js'
 
 const account = AccountStore()
 
@@ -12,6 +12,14 @@ watchEffect(async () => {
   const contract = await contractHandleGames()
   contract.events.GameCreated({ filter: { from: accounts[0] } }).on('data', (data) => {
     router.push({ name: 'waiting', query: { gameId: data.returnValues.gameId } })
+  })
+})
+
+watchEffect(async () => {
+  const accounts = await getEthAccounts()
+  const contract = await contractHandleGames()
+  contract.events.GameNotFound({ filter: { from: accounts[0] } }).on('data', () => {
+    showToast('No game found', 'There are no games available, try again later', 'text-bg-warning')
   })
 })
 
