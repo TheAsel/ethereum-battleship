@@ -8,14 +8,12 @@ const createGame = async () => {
   const accounts = await getEthAccounts()
   const contract = await contractHandleGames()
   contract.methods.createGame().send({ from: accounts[0] })
-  console.log('game created')
 }
 
 const joinRandomGame = async () => {
   const accounts = await getEthAccounts()
   const contract = await contractHandleGames()
   contract.methods.joinRandomGame().send({ from: accounts[0] })
-  console.log('random game joined')
 }
 </script>
 

@@ -8,7 +8,6 @@ const joinGameID = async (gameid) => {
   const accounts = await getEthAccounts()
   const contract = await contractHandleGames()
   contract.methods.joinIdGame(gameid).send({ from: accounts[0] })
-  console.log('random game joined')
 }
 </script>
 

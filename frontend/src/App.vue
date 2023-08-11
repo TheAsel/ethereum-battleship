@@ -2,6 +2,8 @@
 import { RouterView } from 'vue-router'
 import { AccountStore } from '@/stores/store'
 import { useMetaMaskWallet } from 'vue-connect-wallet'
+import { showToast } from '@/utils'
+
 const address = AccountStore()
 const wallet = useMetaMaskWallet()
 
@@ -11,6 +13,7 @@ const connect = async () => {
     console.log('An error occurred' + accounts)
   }
   address.updateAccount(accounts[0])
+  showToast("Connected", "Successfully connected to your MetaMask account")
 }
 
 const switchAccount = async () => {
