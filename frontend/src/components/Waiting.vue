@@ -1,18 +1,26 @@
 <script setup>
-import { RouterLink } from 'vue-router'
+import { ref } from 'vue'
+import useClipboard from 'vue-clipboard3'
 import router from '../router'
-import { isConnected, contractHandleGames, getEthAccounts } from '@/utils.js'
+import { useRoute } from 'vue-router'
+import { isConnected, showToast } from '@/utils'
 
-if (!isConnected) {
+const route = useRoute()
+const gameid = ref(route.query.gameId)
+
+if (!isConnected || typeof gameid.value === 'undefined') {
   router.push({ name: 'home' })
 }
 
-const gameid = ''
+if (gameid.value) {
+  showToast('Game created', 'Waiting for a player to join')
+}
 
-const joinGameID = async (gameid) => {
-  const accounts = await getEthAccounts()
-  const contract = await contractHandleGames()
-  contract.methods.joinIdGame(gameid).send({ from: accounts[0] })
+const { toClipboard } = useClipboard()
+
+const copy = async () => {
+  await toClipboard(gameid.value)
+  showToast('Copied', 'Game ID copied to clipboard')
 }
 </script>
 
@@ -38,22 +46,15 @@ const joinGameID = async (gameid) => {
       </div>
       <div class="col-6">
         <div class="d-grid gap-4 col-11 mx-auto">
+          <h5>Share this game ID with a friend to play:</h5>
           <form class="row">
             <div class="col">
-              <input
-                type="text"
-                class="form-control"
-                v-model="gameid"
-                placeholder="Enter the game ID..."
-              />
+              <input type="text" class="form-control" v-model="gameid" disabled readonly />
             </div>
             <div class="col-auto">
-              <button class="btn btn-success" type="button" @click="joinGameID(gameid)" to="/">
-                Join
-              </button>
+              <button className="btn btn-success" type="button" @click="copy">Copy ID</button>
             </div>
           </form>
-          <RouterLink class="btn btn-success" type="button" to="/">Back</RouterLink>
         </div>
       </div>
     </div>

@@ -1,8 +1,19 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { AccountStore } from '@/stores/store'
+import { watchEffect } from 'vue'
+import router from '../router'
 import { contractHandleGames, getEthAccounts } from '@/utils.js'
+
 const account = AccountStore()
+
+watchEffect(async () => {
+  const accounts = await getEthAccounts()
+  const contract = await contractHandleGames()
+  contract.events.GameCreated({ filter: { from: accounts[0] } }).on('data', (data) => {
+    router.push({ name: 'waiting', query: { gameId: data.returnValues.gameId } })
+  })
+})
 
 const createGame = async () => {
   const accounts = await getEthAccounts()

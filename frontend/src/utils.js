@@ -1,6 +1,14 @@
 import HandleGames from '../../build/contracts/HandleGames.json'
 import Battleship from '../../build/contracts/Battleship.json'
 import Web3 from 'web3'
+import { useMetaMaskWallet } from 'vue-connect-wallet'
+const wallet = useMetaMaskWallet()
+
+export const isConnected = async () => {
+  const accounts = await wallet.getAccounts()
+  if (typeof accounts === 'string') return false
+  return accounts.length > 0
+}
 
 export const getEthAccounts = async () => {
   let web3 = new Web3(window.ethereum)
@@ -23,7 +31,7 @@ export const contractBattleship = async () => {
   return new web3.eth.Contract(abi, contractAddress)
 }
 
-export const showToast = (header, body, type = 'text-bg-success') => {
+export const showToast = (header = '', body = '', type = 'text-bg-success') => {
   bootstrap.showToast({
     header: header,
     headerSmall: 'just now',

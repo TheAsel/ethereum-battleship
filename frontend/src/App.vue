@@ -2,7 +2,7 @@
 import { RouterView } from 'vue-router'
 import { AccountStore } from '@/stores/store'
 import { useMetaMaskWallet } from 'vue-connect-wallet'
-import { showToast } from '@/utils'
+import { isConnected, showToast } from '@/utils'
 
 const address = AccountStore()
 const wallet = useMetaMaskWallet()
@@ -10,14 +10,19 @@ const wallet = useMetaMaskWallet()
 const connect = async () => {
   const accounts = await wallet.connect()
   if (typeof accounts === 'string') {
-    console.log('An error occurred' + accounts)
+    showToast('Error', "Couldn't connect to MetaMask", 'text-bg-danger')
+  } else {
+    address.updateAccount(accounts[0])
+    showToast('Connected', 'Successfully connected to your MetaMask account')
   }
-  address.updateAccount(accounts[0])
-  showToast('Connected', 'Successfully connected to your MetaMask account')
 }
 
 const switchAccount = async () => {
   await wallet.switchAccounts()
+  connect()
+}
+
+if (isConnected) {
   connect()
 }
 </script>
@@ -49,7 +54,9 @@ const switchAccount = async () => {
       </form>
     </div>
   </nav>
-  <RouterView />
+  <Suspense>
+    <RouterView />
+  </Suspense>
 </template>
 
 <style scoped></style>

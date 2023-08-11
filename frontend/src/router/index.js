@@ -12,6 +12,11 @@ const router = createRouter({
       path: '/join',
       name: 'join',
       component: () => import('../views/JoinView.vue')
+    },
+    {
+      path: '/waiting',
+      name: 'waiting',
+      component: () => import('../views/WaitingView.vue')
     }
   ]
 })
