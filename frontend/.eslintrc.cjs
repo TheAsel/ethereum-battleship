@@ -13,5 +13,13 @@ module.exports = {
   },
   rules: {
     'vue/multi-word-component-names': 0
-  }
+  },
+  overrides: [
+    {
+      files: ["*.js"],
+      rules: {
+          "no-undef": "off"
+      }
+    }
+  ]
 }

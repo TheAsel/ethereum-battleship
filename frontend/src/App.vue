@@ -13,7 +13,7 @@ const connect = async () => {
     console.log('An error occurred' + accounts)
   }
   address.updateAccount(accounts[0])
-  showToast("Connected", "Successfully connected to your MetaMask account")
+  showToast('Connected', 'Successfully connected to your MetaMask account')
 }
 
 const switchAccount = async () => {
