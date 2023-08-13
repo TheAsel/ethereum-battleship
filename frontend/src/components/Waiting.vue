@@ -1,9 +1,9 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import useClipboard from 'vue-clipboard3'
 import router from '../router'
 import { useRoute } from 'vue-router'
-import { isConnected, showToast } from '@/utils'
+import { isConnected, contractHandleGames, showToast } from '@/utils.js'
 
 const route = useRoute()
 const gameid = ref(route.query.gameId)
@@ -22,6 +22,17 @@ const copy = async () => {
   await toClipboard(gameid.value)
   showToast('Copied', 'Game ID copied to clipboard')
 }
+
+watchEffect(async () => {
+  try {
+    const contract = await contractHandleGames()
+    contract.events.GameJoined({ filter: { gameId: gameid.value } }).on('data', (data) => {
+      router.push({ name: 'placing', query: { gameId: data.returnValues.gameId } })
+    })
+  } catch (err) {
+    showToast('Error', err.message, 'text-bg-danger')
+  }
+})
 </script>
 
 <template>

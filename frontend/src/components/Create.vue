@@ -2,35 +2,26 @@
 import { watchEffect } from 'vue'
 import { RouterLink } from 'vue-router'
 import router from '../router'
-import { GameStore } from '@/stores/store'
 import { isConnected, contractHandleGames, getEthAccounts, showToast } from '@/utils.js'
-
-const game = GameStore()
-const gameid = ''
 
 if (!isConnected) {
   router.push({ name: 'home' })
 }
 
-const getGameInfo = async (gameid) => {
-  try {
-    const accounts = await getEthAccounts()
-    const contract = await contractHandleGames()
-    contract.methods.getGameInfo(gameid).send({ from: accounts[0] })
-  } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
-  }
+const bet = ''
+
+const createGame = async (bet) => {
+  const accounts = await getEthAccounts()
+  const contract = await contractHandleGames()
+  contract.methods.createGame(bet).send({ from: accounts[0] })
 }
 
 watchEffect(async () => {
   try {
     const accounts = await getEthAccounts()
     const contract = await contractHandleGames()
-    contract.events.GameInfo({ filter: { from: accounts[0] } }).on('data', (data) => {
-      game.updateGameId(data.returnValues.gameId)
-      game.updateCreator(data.returnValues.creator)
-      game.updateBet(data.returnValues.bet)
-      router.push({ name: 'acceptgame' })
+    contract.events.GameCreated({ filter: { from: accounts[0] } }).on('data', (data) => {
+      router.push({ name: 'waiting', query: { gameId: data.returnValues.gameId } })
     })
   } catch (err) {
     showToast('Error', err.message, 'text-bg-danger')
@@ -61,18 +52,21 @@ watchEffect(async () => {
       <div class="col-6">
         <div class="d-grid gap-4 col-11 mx-auto">
           <form class="row">
-            <div class="col">
+            <label for="betAmount" class="form-label">Enter a bet amount to create a game:</label>
+            <div class="col input-group">
+              <span class="input-group-text">wei</span>
               <input
-                type="text"
+                type="number"
                 class="form-control"
-                v-model="gameid"
-                placeholder="Enter the game's ID..."
+                id="betAmount"
+                v-model="bet"
+                placeholder="Enter the game's bet..."
+                min="0"
+                required
               />
             </div>
             <div class="col-auto">
-              <button class="btn btn-success" type="button" @click="getGameInfo(gameid)">
-                Join
-              </button>
+              <button class="btn btn-success" type="button" @click="createGame(bet)">Create</button>
             </div>
           </form>
           <RouterLink class="btn btn-success" type="button" to="/">Back</RouterLink>

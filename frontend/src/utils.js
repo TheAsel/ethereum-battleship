@@ -11,8 +11,12 @@ export const isConnected = async () => {
 }
 
 export const getEthAccounts = async () => {
-  let web3 = new Web3(window.ethereum)
-  return await web3.eth.getAccounts()
+  try {
+    let web3 = new Web3(window.ethereum)
+    return await web3.eth.getAccounts()
+  } catch (err) {
+    showToast('Error', err.message, 'text-bg-danger')
+  }
 }
 
 export const contractHandleGames = async () => {
@@ -31,12 +35,17 @@ export const contractBattleship = async () => {
   return new web3.eth.Contract(abi, contractAddress)
 }
 
-export const showToast = (header = '', body = '', type = 'text-bg-success') => {
+export const showToast = (header = '', body = '', type = 'text-bg-success', perm = false) => {
+  var delay = 5000
+  if (perm) {
+    delay = Infinity
+  }
   bootstrap.showToast({
     header: header,
     headerSmall: 'just now',
     body: body,
     toastClass: type, // text-bg-[success/warning/danger]
-    position: 'bottom-0 end-0'
+    position: 'bottom-0 end-0',
+    delay: delay
   })
 }

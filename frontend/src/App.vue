@@ -8,12 +8,16 @@ const address = AccountStore()
 const wallet = useMetaMaskWallet()
 
 const connect = async () => {
-  const accounts = await wallet.connect()
-  if (typeof accounts === 'string') {
-    showToast('Error', "Couldn't connect to MetaMask", 'text-bg-danger')
-  } else {
-    address.updateAccount(accounts[0])
-    showToast('Connected', 'Successfully connected to your MetaMask account')
+  try {
+    const accounts = await wallet.connect()
+    if (typeof accounts === 'string') {
+      showToast('Error', "Couldn't connect to MetaMask", 'text-bg-danger')
+    } else {
+      address.updateAccount(accounts[0])
+      showToast('Connected', 'Successfully connected to your MetaMask account')
+    }
+  } catch (err) {
+    showToast('Error', err.message, 'text-bg-danger')
   }
 }
 

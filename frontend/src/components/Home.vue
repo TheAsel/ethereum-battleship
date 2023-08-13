@@ -1,39 +1,49 @@
 <script setup>
-import { RouterLink } from 'vue-router'
-import { AccountStore } from '@/stores/store'
 import { watchEffect } from 'vue'
+import { RouterLink } from 'vue-router'
 import router from '../router'
+import { AccountStore, GameStore } from '@/stores/store'
 import { contractHandleGames, getEthAccounts, showToast } from '@/utils.js'
 
 const account = AccountStore()
+const game = GameStore()
+
+const getRandomGame = async () => {
+  try {
+    const accounts = await getEthAccounts()
+    const contract = await contractHandleGames()
+    contract.methods.getRandomGame().send({ from: accounts[0] })
+  } catch (err) {
+    showToast('Error', err.message, 'text-bg-danger')
+  }
+}
 
 watchEffect(async () => {
-  const accounts = await getEthAccounts()
-  const contract = await contractHandleGames()
-  contract.events.GameCreated({ filter: { from: accounts[0] } }).on('data', (data) => {
-    router.push({ name: 'waiting', query: { gameId: data.returnValues.gameId } })
-  })
+  try {
+    const accounts = await getEthAccounts()
+    const contract = await contractHandleGames()
+    contract.events.GameInfo({ filter: { sender: accounts[0] } }).on('data', (data) => {
+      game.updateGameId(data.returnValues.gameId)
+      game.updateCreator(data.returnValues.creator)
+      game.updateBet(data.returnValues.bet)
+      router.push({ name: 'acceptgame' })
+    })
+  } catch (err) {
+    showToast('Error', err.message, 'text-bg-danger')
+  }
 })
 
 watchEffect(async () => {
-  const accounts = await getEthAccounts()
-  const contract = await contractHandleGames()
-  contract.events.GameNotFound({ filter: { from: accounts[0] } }).on('data', () => {
-    showToast('No game found', 'There are no games available, try again later', 'text-bg-warning')
-  })
+  try {
+    const accounts = await getEthAccounts()
+    const contract = await contractHandleGames()
+    contract.events.GameNotFound({ filter: { from: accounts[0] } }).on('data', () => {
+      showToast('No game found', 'There are no games available, try again later', 'text-bg-warning')
+    })
+  } catch (err) {
+    showToast('Error', err.message, 'text-bg-danger')
+  }
 })
-
-const createGame = async () => {
-  const accounts = await getEthAccounts()
-  const contract = await contractHandleGames()
-  contract.methods.createGame().send({ from: accounts[0] })
-}
-
-const joinRandomGame = async () => {
-  const accounts = await getEthAccounts()
-  const contract = await contractHandleGames()
-  contract.methods.joinRandomGame().send({ from: accounts[0] })
-}
 </script>
 
 <template>
@@ -58,13 +68,13 @@ const joinRandomGame = async () => {
       </div>
       <div class="col-6">
         <div v-if="account.getWallet" class="d-grid gap-4 col-8 mx-auto">
-          <button class="btn btn-success" type="button" @click="createGame">
+          <RouterLink class="btn btn-success" type="button" to="/create">
             Create a new game
-          </button>
+          </RouterLink>
           <RouterLink class="btn btn-success" type="button" to="/join"
             >Join a game by ID</RouterLink
           >
-          <button class="btn btn-success" type="button" @click="joinRandomGame">
+          <button class="btn btn-success" type="button" @click="getRandomGame">
             Join a random game
           </button>
         </div>

@@ -9,14 +9,29 @@ const router = createRouter({
       component: () => import('../views/HomeView.vue')
     },
     {
+      path: '/create',
+      name: 'create',
+      component: () => import('../views/CreateView.vue')
+    },
+    {
       path: '/join',
       name: 'join',
       component: () => import('../views/JoinView.vue')
     },
     {
+      path: '/acceptgame',
+      name: 'acceptgame',
+      component: () => import('../views/AcceptGameView.vue')
+    },
+    {
       path: '/waiting',
       name: 'waiting',
       component: () => import('../views/WaitingView.vue')
+    },
+    {
+      path: '/placing',
+      name: 'placing',
+      component: () => import('../views/PlacingView.vue')
     }
   ]
 })
