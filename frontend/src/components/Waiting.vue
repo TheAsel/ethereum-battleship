@@ -3,9 +3,12 @@ import { ref, watchEffect } from 'vue'
 import useClipboard from 'vue-clipboard3'
 import router from '../router'
 import { useRoute } from 'vue-router'
+import { GameStore } from '@/stores/store'
 import { isConnected, contractHandleGames, showToast } from '@/utils.js'
 
+const game = GameStore()
 const route = useRoute()
+
 const gameid = ref(route.query.gameId)
 
 if (!isConnected || typeof gameid.value === 'undefined') {
@@ -27,6 +30,7 @@ watchEffect(async () => {
   try {
     const contract = await contractHandleGames()
     contract.events.GameJoined({ filter: { gameId: gameid.value } }).on('data', (data) => {
+      game.updateOpponent(data.returnValues.by)
       router.push({ name: 'placing', query: { gameId: data.returnValues.gameId } })
     })
   } catch (err) {

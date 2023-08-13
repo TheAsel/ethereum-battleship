@@ -32,6 +32,11 @@ const router = createRouter({
       path: '/placing',
       name: 'placing',
       component: () => import('../views/PlacingView.vue')
+    },
+    {
+      path: '/play',
+      name: 'play',
+      component: () => import('../views/PlayView.vue')
     }
   ]
 })

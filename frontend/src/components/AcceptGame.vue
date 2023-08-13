@@ -30,6 +30,7 @@ watchEffect(async () => {
     const accounts = await getEthAccounts()
     const contract = await contractHandleGames()
     contract.events.GameJoined({ filter: { by: accounts[0] } }).on('data', (data) => {
+      game.updateOpponent(game.getCreator)
       router.push({ name: 'placing', query: { gameId: data.returnValues.gameId } })
     })
   } catch (err) {
