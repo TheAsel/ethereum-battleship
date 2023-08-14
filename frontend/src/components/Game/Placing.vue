@@ -2,14 +2,9 @@
 import { ref, watchEffect } from 'vue'
 import router from '@/router'
 import { GameStore } from '@/stores/store'
-import { isConnected, contractBattleship, getEthAccounts, showToast } from '@/utils.js'
+import { contractBattleship, getEthAccounts, showToast } from '@/utils.js'
 
 const game = GameStore()
-
-if (!isConnected || game.getOpponent == '') {
-  router.push({ name: 'home' })
-}
-
 const selected = ref(new Array(64).fill(false))
 const placed = ref(0)
 
@@ -39,16 +34,6 @@ const commitBoard = async () => {
     const accounts = await getEthAccounts()
     const contract = await contractBattleship(game.getGameId)
     contract.methods.commitBoard().send({ from: accounts[0] })
-  } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
-  }
-}
-
-const report = async () => {
-  try {
-    const accounts = await getEthAccounts()
-    const contract = await contractBattleship(game.getGameId)
-    contract.methods.report(game.getOpponent).send({ from: accounts[0] })
   } catch (err) {
     showToast('Error', err.message, 'text-bg-danger')
   }
@@ -86,9 +71,6 @@ watchEffect(async () => {
             >
               Commit board
             </button>
-          </div>
-          <div class="col">
-            <button class="btn btn-danger" type="button" @click="report">Report opponent</button>
           </div>
         </div>
       </div>

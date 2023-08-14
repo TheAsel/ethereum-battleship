@@ -6,7 +6,6 @@ import { GameStore } from '@/stores/store'
 import { isConnected, contractHandleGames, showToast } from '@/utils.js'
 
 const game = GameStore()
-
 const gameId = ref(game.getGameId)
 
 if (!isConnected || gameId.value === '') {

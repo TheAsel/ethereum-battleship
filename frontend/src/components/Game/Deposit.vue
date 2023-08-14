@@ -2,32 +2,17 @@
 import { ref, watchEffect } from 'vue'
 import router from '@/router'
 import { GameStore } from '@/stores/store'
-import { isConnected, contractBattleship, getEthAccounts, showToast } from '@/utils.js'
+import { contractBattleship, getEthAccounts, showToast } from '@/utils.js'
 
 const game = GameStore()
-
 const gameId = ref(game.getGameId)
 const gameBet = ref(game.getBet)
-
-if (!isConnected || gameId.value === '') {
-  router.push({ name: 'home' })
-}
 
 const depositBet = async () => {
   try {
     const accounts = await getEthAccounts()
     const contract = await contractBattleship(gameId.value)
     contract.methods.depositBet().send({ from: accounts[0], value: gameBet.value })
-  } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
-  }
-}
-
-const report = async () => {
-  try {
-    const accounts = await getEthAccounts()
-    const contract = await contractBattleship(game.getGameId)
-    contract.methods.report(game.getOpponent).send({ from: accounts[0] })
   } catch (err) {
     showToast('Error', err.message, 'text-bg-danger')
   }
@@ -77,9 +62,6 @@ watchEffect(async () => {
               <button className="btn btn-success" type="button" @click="depositBet">
                 Deposit bet
               </button>
-            </div>
-            <div class="col-md-auto">
-              <button class="btn btn-danger" type="button" @click="report">Report opponent</button>
             </div>
           </form>
         </div>
