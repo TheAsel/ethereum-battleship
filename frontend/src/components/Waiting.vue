@@ -2,36 +2,30 @@
 import { ref, watchEffect } from 'vue'
 import useClipboard from 'vue-clipboard3'
 import router from '../router'
-import { useRoute } from 'vue-router'
 import { GameStore } from '@/stores/store'
 import { isConnected, contractHandleGames, showToast } from '@/utils.js'
 
 const game = GameStore()
-const route = useRoute()
 
-const gameid = ref(route.query.gameId)
+const gameId = ref(game.getGameId)
 
-if (!isConnected || typeof gameid.value === 'undefined') {
+if (!isConnected || gameId.value === '') {
   router.push({ name: 'home' })
-}
-
-if (gameid.value) {
-  showToast('Game created', 'Waiting for a player to join')
 }
 
 const { toClipboard } = useClipboard()
 
 const copy = async () => {
-  await toClipboard(gameid.value)
+  await toClipboard(gameId.value)
   showToast('Copied', 'Game ID copied to clipboard')
 }
 
 watchEffect(async () => {
   try {
     const contract = await contractHandleGames()
-    contract.events.GameJoined({ filter: { gameId: gameid.value } }).on('data', (data) => {
+    contract.events.GameJoined({ filter: { gameId: gameId.value } }).on('data', (data) => {
       game.updateOpponent(data.returnValues.by)
-      router.push({ name: 'placing', query: { gameId: data.returnValues.gameId } })
+      router.push({ name: 'deposit' })
     })
   } catch (err) {
     showToast('Error', err.message, 'text-bg-danger')
@@ -64,7 +58,7 @@ watchEffect(async () => {
           <h5>Share this game ID with a friend to play:</h5>
           <form class="row">
             <div class="col">
-              <input type="text" class="form-control" v-model="gameid" disabled readonly />
+              <input type="text" class="form-control" v-model="gameId" disabled readonly />
             </div>
             <div class="col-auto">
               <button className="btn btn-success" type="button" @click="copy">Copy ID</button>

@@ -11,15 +11,15 @@ if (!isConnected) {
   router.push({ name: 'home' })
 }
 
-const gameid = ref(game.getGameId)
+const gameId = ref(game.getGameId)
 const gameCreator = ref(game.getCreator)
 const gameBet = ref(game.getBet)
 
-const joinGame = async (gameid) => {
+const joinGame = async () => {
   try {
     const accounts = await getEthAccounts()
     const contract = await contractHandleGames()
-    contract.methods.joinGame(gameid).send({ from: accounts[0] })
+    contract.methods.joinGame(gameId.value).send({ from: accounts[0] })
   } catch (err) {
     showToast('Error', err.message, 'text-bg-danger')
   }
@@ -29,9 +29,9 @@ watchEffect(async () => {
   try {
     const accounts = await getEthAccounts()
     const contract = await contractHandleGames()
-    contract.events.GameJoined({ filter: { by: accounts[0] } }).on('data', (data) => {
+    contract.events.GameJoined({ filter: { by: accounts[0] } }).on('data', () => {
       game.updateOpponent(game.getCreator)
-      router.push({ name: 'placing', query: { gameId: data.returnValues.gameId } })
+      router.push({ name: 'deposit' })
     })
   } catch (err) {
     showToast('Error', err.message, 'text-bg-danger')
@@ -62,13 +62,13 @@ watchEffect(async () => {
       <div class="col-6">
         <div class="d-grid gap-4 col-9 mx-auto">
           <form class="row">
-            <label for="gameid" class="form-label">Game's ID:</label>
+            <label for="gameId" class="form-label">Game's ID:</label>
             <div>
               <input
                 type="text"
                 class="form-control"
-                id="gameid"
-                v-model="gameid"
+                id="gameId"
+                v-model="gameId"
                 disabled
                 readonly
               />
@@ -101,14 +101,12 @@ watchEffect(async () => {
               />
             </div>
           </form>
-          <form class="row justify-content-md-center">
-            <div class="col-auto">
-              <button class="btn btn-success" type="button" @click="joinGame(gameid)">
-                Accept
-              </button>
-            </div>
+          <form class="row gap-4 justify-content-md-center">
             <div class="col-auto">
               <RouterLink class="btn btn-danger" type="button" to="/">Reject</RouterLink>
+            </div>
+            <div class="col-auto">
+              <button class="btn btn-success" type="button" @click="joinGame">Join game</button>
             </div>
           </form>
         </div>

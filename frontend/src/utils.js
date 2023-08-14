@@ -27,12 +27,10 @@ export const contractHandleGames = async () => {
   return new web3.eth.Contract(abi, contractAddress)
 }
 
-export const contractBattleship = async () => {
+export const contractBattleship = async (address) => {
   let web3 = new Web3(window.ethereum)
-  const networkID = await web3.eth.net.getId()
   const { abi } = Battleship
-  const contractAddress = Battleship.networks[networkID].address
-  return new web3.eth.Contract(abi, contractAddress)
+  return new web3.eth.Contract(abi, address)
 }
 
 export const showToast = (header = '', body = '', type = 'text-bg-success', perm = false) => {

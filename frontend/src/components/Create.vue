@@ -2,18 +2,27 @@
 import { watchEffect } from 'vue'
 import { RouterLink } from 'vue-router'
 import router from '../router'
+import { GameStore } from '@/stores/store'
 import { isConnected, contractHandleGames, getEthAccounts, showToast } from '@/utils.js'
 
 if (!isConnected) {
   router.push({ name: 'home' })
 }
 
+const game = GameStore()
 const bet = ''
+var finalBet = ''
 
 const createGame = async (bet) => {
-  const accounts = await getEthAccounts()
-  const contract = await contractHandleGames()
-  contract.methods.createGame(bet).send({ from: accounts[0] })
+  try {
+    const accounts = await getEthAccounts()
+    const contract = await contractHandleGames()
+    contract.methods.createGame(bet).send({ from: accounts[0] })
+    game.updateCreator(accounts[0])
+    finalBet = bet
+  } catch (err) {
+    showToast('Error', err.message, 'text-bg-danger')
+  }
 }
 
 watchEffect(async () => {
@@ -21,7 +30,9 @@ watchEffect(async () => {
     const accounts = await getEthAccounts()
     const contract = await contractHandleGames()
     contract.events.GameCreated({ filter: { from: accounts[0] } }).on('data', (data) => {
-      router.push({ name: 'waiting', query: { gameId: data.returnValues.gameId } })
+      game.updateGameId(data.returnValues.gameId)
+      game.updateBet(finalBet)
+      router.push({ name: 'waiting' })
     })
   } catch (err) {
     showToast('Error', err.message, 'text-bg-danger')

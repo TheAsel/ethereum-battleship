@@ -14,6 +14,11 @@ const router = createRouter({
       component: () => import('../views/CreateView.vue')
     },
     {
+      path: '/waiting',
+      name: 'waiting',
+      component: () => import('../views/WaitingView.vue')
+    },
+    {
       path: '/join',
       name: 'join',
       component: () => import('../views/JoinView.vue')
@@ -24,9 +29,9 @@ const router = createRouter({
       component: () => import('../views/AcceptGameView.vue')
     },
     {
-      path: '/waiting',
-      name: 'waiting',
-      component: () => import('../views/WaitingView.vue')
+      path: '/deposit',
+      name: 'deposit',
+      component: () => import('../views/DepositView.vue')
     },
     {
       path: '/placing',

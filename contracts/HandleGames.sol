@@ -53,7 +53,7 @@ contract HandleGames {
         emit GameCreated(newGame, msg.sender);
     }
 
-    // joins a game by its ID
+    // removes a game from the joinable list
     function joinGame(Battleship game) external joinable(game) {
         game.addPlayerTwo(msg.sender);
         removeGame(game);
