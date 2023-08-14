@@ -1,9 +1,9 @@
 <script setup>
-import Play from '../components/Play.vue'
+import Game from '../components/Game.vue'
 </script>
 
 <template>
   <main>
-    <Play />
+    <Game />
   </main>
 </template>

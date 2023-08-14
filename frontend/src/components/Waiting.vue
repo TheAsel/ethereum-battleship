@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watchEffect } from 'vue'
 import useClipboard from 'vue-clipboard3'
-import router from '../router'
+import router from '@/router'
 import { GameStore } from '@/stores/store'
 import { isConnected, contractHandleGames, showToast } from '@/utils.js'
 

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watchEffect } from 'vue'
-import router from '../router'
+import router from '@/router'
 import { GameStore } from '@/stores/store'
 import { isConnected, contractBattleship, getEthAccounts, showToast } from '@/utils.js'
 

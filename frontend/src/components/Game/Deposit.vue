@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watchEffect } from 'vue'
-import router from '../router'
+import router from '@/router'
 import { GameStore } from '@/stores/store'
 import { isConnected, contractBattleship, getEthAccounts, showToast } from '@/utils.js'
 
@@ -52,7 +52,7 @@ watchEffect(async () => {
         <img
           alt="Ethereum Battleship logo"
           class="logo"
-          src="../assets/logo.svg"
+          src="@/assets/logo.svg"
           width="125"
           height="125"
         />

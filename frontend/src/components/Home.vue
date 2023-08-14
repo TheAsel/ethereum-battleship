@@ -1,7 +1,7 @@
 <script setup>
 import { watchEffect } from 'vue'
 import { RouterLink } from 'vue-router'
-import router from '../router'
+import router from '@/router'
 import { AccountStore, GameStore } from '@/stores/store'
 import { contractHandleGames, getEthAccounts, showToast } from '@/utils.js'
 

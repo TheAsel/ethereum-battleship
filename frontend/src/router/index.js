@@ -29,19 +29,25 @@ const router = createRouter({
       component: () => import('../views/AcceptGameView.vue')
     },
     {
-      path: '/deposit',
-      name: 'deposit',
-      component: () => import('../views/DepositView.vue')
-    },
-    {
-      path: '/placing',
-      name: 'placing',
-      component: () => import('../views/PlacingView.vue')
-    },
-    {
-      path: '/play',
-      name: 'play',
-      component: () => import('../views/PlayView.vue')
+      path: '/game/',
+      component: () => import('../views/GameView.vue'),
+      children: [
+        {
+          path: 'deposit',
+          name: 'deposit',
+          component: () => import('../views/Game/DepositView.vue')
+        },
+        {
+          path: 'placing',
+          name: 'placing',
+          component: () => import('../views/Game/PlacingView.vue')
+        },
+        {
+          path: 'play',
+          name: 'play',
+          component: () => import('../views/Game/PlayView.vue')
+        }
+      ]
     }
   ]
 })

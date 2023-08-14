@@ -1,19 +1,18 @@
 <script setup>
 import { ref, watchEffect } from 'vue'
 import { RouterLink } from 'vue-router'
-import router from '../router'
+import router from '@/router'
 import { GameStore } from '@/stores/store'
 import { isConnected, contractHandleGames, getEthAccounts, showToast } from '@/utils.js'
 
 const game = GameStore()
-
-if (!isConnected) {
-  router.push({ name: 'home' })
-}
-
 const gameId = ref(game.getGameId)
 const gameCreator = ref(game.getCreator)
 const gameBet = ref(game.getBet)
+
+if (!isConnected || gameId.value === '') {
+  router.push({ name: 'home' })
+}
 
 const joinGame = async () => {
   try {
@@ -55,7 +54,7 @@ watchEffect(async () => {
         <h1 class="display-2 me-5">Ethereum Battleship</h1>
       </div>
       <div class="col">
-        <div class="d-flex" style="height: 200px">
+        <div class="d-flex" style="height: 300px">
           <div class="vr"></div>
         </div>
       </div>

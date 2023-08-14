@@ -1,5 +1,5 @@
 <script setup>
-import Deposit from '../components/Deposit.vue'
+import Deposit from '../../components/Game/Deposit.vue'
 </script>
 
 <template>
