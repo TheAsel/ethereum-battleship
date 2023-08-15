@@ -127,4 +127,8 @@ td {
   height: 100%;
   background-color: #198754;
 }
+
+td:hover {
+  border: 2px solid #dc3545;
+}
 </style>
