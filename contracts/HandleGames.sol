@@ -22,12 +22,7 @@ contract HandleGames {
     // emitted when a game isn't found
     event GameNotFound(address indexed player);
     // emitted to give a game's info
-    event GameInfo(
-        address indexed sender,
-        Battleship indexed gameId,
-        address indexed creator,
-        uint256 bet
-    );
+    event GameInfo(address indexed sender, Battleship indexed gameId);
 
     // ---- Modifiers
     // requirements for a game to be joinable
@@ -60,18 +55,6 @@ contract HandleGames {
         emit GameJoined(game, msg.sender);
     }
 
-    // returns a game's relevant information
-    function getGameInfo(
-        Battleship game
-    ) external gamesAvailable joinable(game) {
-        emit GameInfo(
-            msg.sender,
-            game,
-            game.getGameCreator(),
-            game.getGameBet()
-        );
-    }
-
     // joins a random game from the list of joinable games
     function getRandomGame() external gamesAvailable {
         uint256 index = random();
@@ -80,12 +63,7 @@ contract HandleGames {
             Battleship game = gamesArray[(index + i) % gamesArray.length];
             if (game.playerOne() != msg.sender) {
                 found = true;
-                emit GameInfo(
-                    msg.sender,
-                    game,
-                    game.getGameCreator(),
-                    game.getGameBet()
-                );
+                emit GameInfo(msg.sender, game);
                 (game, msg.sender);
                 break;
             }

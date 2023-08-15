@@ -36,7 +36,7 @@ if (isConnected) {
     <div class="container-fluid">
       <a class="navbar-brand" href="/">
         <img
-          src="./assets/logo.svg"
+          src="@/assets/logo.svg"
           alt="Logo"
           width="30"
           height="24"

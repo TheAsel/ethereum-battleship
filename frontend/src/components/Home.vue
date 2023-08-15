@@ -25,8 +25,6 @@ watchEffect(async () => {
     const contract = await contractHandleGames()
     contract.events.GameInfo({ filter: { sender: accounts[0] } }).on('data', (data) => {
       game.updateGameId(data.returnValues.gameId)
-      game.updateCreator(data.returnValues.creator)
-      game.updateBet(data.returnValues.bet)
       router.push({ name: 'acceptgame' })
     })
   } catch (err) {
@@ -54,7 +52,7 @@ watchEffect(async () => {
         <img
           alt="Ethereum Battleship logo"
           class="logo"
-          src="../assets/logo.svg"
+          src="@/assets/logo.svg"
           width="125"
           height="125"
         />

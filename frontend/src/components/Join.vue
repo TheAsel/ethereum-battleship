@@ -1,9 +1,8 @@
 <script setup>
-import { watchEffect } from 'vue'
 import { RouterLink } from 'vue-router'
 import router from '@/router'
 import { GameStore } from '@/stores/store'
-import { isConnected, contractHandleGames, getEthAccounts, showToast } from '@/utils.js'
+import { isConnected, contractBattleship, showToast } from '@/utils.js'
 
 const game = GameStore()
 const gameid = ''
@@ -14,28 +13,13 @@ if (!isConnected) {
 
 const getGameInfo = async (gameid) => {
   try {
-    const accounts = await getEthAccounts()
-    const contract = await contractHandleGames()
-    contract.methods.getGameInfo(gameid).send({ from: accounts[0] })
+    await contractBattleship(gameid)
+    game.updateGameId(gameid)
+    router.push({ name: 'acceptgame' })
   } catch (err) {
     showToast('Error', err.message, 'text-bg-danger')
   }
 }
-
-watchEffect(async () => {
-  try {
-    const accounts = await getEthAccounts()
-    const contract = await contractHandleGames()
-    contract.events.GameInfo({ filter: { from: accounts[0] } }).on('data', (data) => {
-      game.updateGameId(data.returnValues.gameId)
-      game.updateCreator(data.returnValues.creator)
-      game.updateBet(data.returnValues.bet)
-      router.push({ name: 'acceptgame' })
-    })
-  } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
-  }
-})
 </script>
 
 <template>
@@ -45,7 +29,7 @@ watchEffect(async () => {
         <img
           alt="Ethereum Battleship logo"
           class="logo"
-          src="../assets/logo.svg"
+          src="@/assets/logo.svg"
           width="125"
           height="125"
         />

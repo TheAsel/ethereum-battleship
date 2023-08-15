@@ -80,16 +80,6 @@ contract Battleship {
         gamePhase = Phase.Waiting;
     }
 
-    // return the game's creator
-    function getGameCreator() external view waitingPhase returns (address) {
-        return playerOne;
-    }
-
-    // return the game's agreed bet
-    function getGameBet() external view waitingPhase returns (uint256) {
-        return agreedBet;
-    }
-
     // adds the second player to the game
     function addPlayerTwo(address player) external waitingPhase {
         playerTwo = player;

@@ -3,12 +3,30 @@ import { ref, watchEffect } from 'vue'
 import { RouterLink } from 'vue-router'
 import router from '@/router'
 import { GameStore } from '@/stores/store'
-import { isConnected, contractHandleGames, getEthAccounts, showToast } from '@/utils.js'
+import {
+  isConnected,
+  contractHandleGames,
+  contractBattleship,
+  getEthAccounts,
+  showToast
+} from '@/utils.js'
 
+const dangerToast = 'text-bg-danger'
 const game = GameStore()
 const gameId = ref(game.getGameId)
-const gameCreator = ref(game.getCreator)
-const gameBet = ref(game.getBet)
+const gameCreator = ref('')
+const gameBet = ref('')
+
+try {
+  const contract = await contractBattleship(gameId.value)
+  gameCreator.value = await contract.methods.playerOne().call()
+  game.updateCreator(gameCreator.value)
+  gameBet.value = await contract.methods.agreedBet().call()
+  game.updateBet(gameBet.value)
+} catch (err) {
+  showToast('Error', err.message, dangerToast)
+  router.push({ name: 'home' })
+}
 
 if (!isConnected || gameId.value === '') {
   router.push({ name: 'home' })
@@ -20,7 +38,7 @@ const joinGame = async () => {
     const contract = await contractHandleGames()
     contract.methods.joinGame(gameId.value).send({ from: accounts[0] })
   } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
+    showToast('Error', err.message, dangerToast)
   }
 }
 
@@ -33,7 +51,7 @@ watchEffect(async () => {
       router.push({ name: 'deposit' })
     })
   } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
+    showToast('Error', err.message, dangerToast)
   }
 })
 </script>
@@ -45,7 +63,7 @@ watchEffect(async () => {
         <img
           alt="Ethereum Battleship logo"
           class="logo"
-          src="../assets/logo.svg"
+          src="@/assets/logo.svg"
           width="125"
           height="125"
         />
