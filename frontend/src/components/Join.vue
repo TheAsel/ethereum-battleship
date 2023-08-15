@@ -17,7 +17,7 @@ const getGameInfo = async (gameid) => {
     game.updateGameId(gameid)
     router.push({ name: 'acceptgame' })
   } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
+    showToast('Error', err.message)
   }
 }
 </script>

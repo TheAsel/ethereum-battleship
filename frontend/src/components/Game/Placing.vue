@@ -56,7 +56,7 @@ const commitBoard = async () => {
     game.updateBoard(selected)
     game.updateTree(tree.dump())
   } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
+    showToast('Error', err.message)
   }
 }
 
@@ -67,7 +67,7 @@ watchEffect(async () => {
       router.push({ name: 'play' })
     })
   } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
+    showToast('Error', err.message)
   }
 })
 </script>

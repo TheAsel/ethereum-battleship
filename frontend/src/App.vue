@@ -11,13 +11,13 @@ const connect = async () => {
   try {
     const accounts = await wallet.connect()
     if (typeof accounts === 'string') {
-      showToast('Error', "Couldn't connect to MetaMask", 'text-bg-danger')
+      showToast('Error', "Couldn't connect to MetaMask")
     } else {
       address.updateAccount(accounts[0])
-      showToast('Connected', 'Successfully connected to your MetaMask account')
+      showToast('Connected', 'Successfully connected to your MetaMask account', 'text-bg-success')
     }
   } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
+    showToast('Error', err.message)
   }
 }
 

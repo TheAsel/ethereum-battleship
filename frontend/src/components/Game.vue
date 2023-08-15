@@ -16,9 +16,9 @@ const report = async () => {
   try {
     const accounts = await getEthAccounts()
     const contract = await contractBattleship(game.getGameId)
-    contract.methods.report(game.getOpponent).send({ from: accounts[0] })
+    contract.methods.report().send({ from: accounts[0] })
   } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
+    showToast('Error', err.message)
   }
 }
 </script>

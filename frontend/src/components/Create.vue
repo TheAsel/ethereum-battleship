@@ -11,17 +11,14 @@ if (!isConnected) {
 
 const game = GameStore()
 const bet = ''
-var finalBet = ''
 
 const createGame = async (bet) => {
   try {
     const accounts = await getEthAccounts()
     const contract = await contractHandleGames()
     contract.methods.createGame(bet).send({ from: accounts[0] })
-    game.updateCreator(accounts[0])
-    finalBet = bet
   } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
+    showToast('Error', err.message)
   }
 }
 
@@ -31,11 +28,10 @@ watchEffect(async () => {
     const contract = await contractHandleGames()
     contract.events.GameCreated({ filter: { from: accounts[0] } }).on('data', (data) => {
       game.updateGameId(data.returnValues.gameId)
-      game.updateBet(finalBet)
       router.push({ name: 'waiting' })
     })
   } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
+    showToast('Error', err.message)
   }
 })
 </script>

@@ -34,7 +34,7 @@ export const contractBattleship = async (address) => {
   return new web3.eth.Contract(abi, address)
 }
 
-export const showToast = (header = '', body = '', type = 'text-bg-success') => {
+export const showToast = (header = '', body = '', type = 'text-bg-danger') => {
   bootstrap.showToast({
     header: header,
     headerSmall: 'just now',

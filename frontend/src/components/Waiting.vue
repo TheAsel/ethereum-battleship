@@ -16,18 +16,17 @@ const { toClipboard } = useClipboard()
 
 const copy = async () => {
   await toClipboard(gameId.value)
-  showToast('Copied', 'Game ID copied to clipboard')
+  showToast('Copied', 'Game ID copied to clipboard', 'text-bg-success')
 }
 
 watchEffect(async () => {
   try {
     const contract = await contractHandleGames()
-    contract.events.GameJoined({ filter: { gameId: gameId.value } }).on('data', (data) => {
-      game.updateOpponent(data.returnValues.by)
+    contract.events.GameJoined({ filter: { gameId: gameId.value } }).on('data', () => {
       router.push({ name: 'deposit' })
     })
   } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
+    showToast('Error', err.message)
   }
 })
 </script>

@@ -11,7 +11,6 @@ import {
   showToast
 } from '@/utils.js'
 
-const dangerToast = 'text-bg-danger'
 const game = GameStore()
 const gameId = ref(game.getGameId)
 const gameCreator = ref('')
@@ -20,11 +19,9 @@ const gameBet = ref('')
 try {
   const contract = await contractBattleship(gameId.value)
   gameCreator.value = await contract.methods.playerOne().call()
-  game.updateCreator(gameCreator.value)
   gameBet.value = await contract.methods.agreedBet().call()
-  game.updateBet(gameBet.value)
 } catch (err) {
-  showToast('Error', err.message, dangerToast)
+  showToast('Error', err.message)
   router.push({ name: 'home' })
 }
 
@@ -38,7 +35,7 @@ const joinGame = async () => {
     const contract = await contractHandleGames()
     contract.methods.joinGame(gameId.value).send({ from: accounts[0] })
   } catch (err) {
-    showToast('Error', err.message, dangerToast)
+    showToast('Error', err.message)
   }
 }
 
@@ -47,11 +44,10 @@ watchEffect(async () => {
     const accounts = await getEthAccounts()
     const contract = await contractHandleGames()
     contract.events.GameJoined({ filter: { by: accounts[0] } }).on('data', () => {
-      game.updateOpponent(game.getCreator)
       router.push({ name: 'deposit' })
     })
   } catch (err) {
-    showToast('Error', err.message, dangerToast)
+    showToast('Error', err.message)
   }
 })
 </script>

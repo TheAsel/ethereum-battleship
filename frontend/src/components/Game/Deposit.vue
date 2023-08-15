@@ -6,7 +6,15 @@ import { contractBattleship, getEthAccounts, showToast } from '@/utils.js'
 
 const game = GameStore()
 const gameId = ref(game.getGameId)
-const gameBet = ref(game.getBet)
+const gameBet = ref('')
+
+try {
+  const contract = await contractBattleship(gameId.value)
+  gameBet.value = await contract.methods.agreedBet().call()
+} catch (err) {
+  showToast('Error', err.message)
+  router.push({ name: 'home' })
+}
 
 const depositBet = async () => {
   try {
@@ -14,7 +22,7 @@ const depositBet = async () => {
     const contract = await contractBattleship(gameId.value)
     contract.methods.depositBet().send({ from: accounts[0], value: gameBet.value })
   } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
+    showToast('Error', err.message)
   }
 }
 
@@ -25,7 +33,7 @@ watchEffect(async () => {
       router.push({ name: 'placing' })
     })
   } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
+    showToast('Error', err.message)
   }
 })
 </script>
