@@ -33,17 +33,12 @@ export const contractBattleship = async (address) => {
   return new web3.eth.Contract(abi, address)
 }
 
-export const showToast = (header = '', body = '', type = 'text-bg-success', perm = false) => {
-  var delay = 5000
-  if (perm) {
-    delay = Infinity
-  }
+export const showToast = (header = '', body = '', type = 'text-bg-success') => {
   bootstrap.showToast({
     header: header,
     headerSmall: 'just now',
     body: body,
     toastClass: type, // text-bg-[success/warning/danger]
-    position: 'bottom-0 end-0',
-    delay: delay
+    position: 'bottom-0 end-0'
   })
 }

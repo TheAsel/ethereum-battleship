@@ -14,10 +14,7 @@ const isPlaced = (row, col) => {
 
 const place = (row, col) => {
   const pos = (row - 1) * 8 + col - 1
-  if (placed.value < 10 && !selected.value[pos]) {
-    selected.value[pos] = !selected.value[pos]
-    countPlaced()
-  } else if (selected.value[pos]) {
+  if ((placed.value < 10 && !selected.value[pos]) || selected.value[pos]) {
     selected.value[pos] = !selected.value[pos]
     countPlaced()
   } else {

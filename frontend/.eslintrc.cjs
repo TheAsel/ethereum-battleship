@@ -3,7 +3,9 @@ require('@rushstack/eslint-patch/modern-module-resolution')
 
 module.exports = {
   root: true,
-  'extends': [
+  plugins: ['sonarjs'],
+  extends: [
+    'plugin:sonarjs/recommended',
     'plugin:vue/vue3-essential',
     'eslint:recommended',
     '@vue/eslint-config-prettier/skip-formatting'
@@ -16,9 +18,9 @@ module.exports = {
   },
   overrides: [
     {
-      files: ["*.js"],
+      files: ['*.js'],
       rules: {
-          "no-undef": "off"
+        'no-undef': 'off'
       }
     }
   ]

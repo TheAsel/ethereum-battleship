@@ -5,6 +5,7 @@ import router from '@/router'
 import { AccountStore, GameStore } from '@/stores/store'
 import { contractHandleGames, getEthAccounts, showToast } from '@/utils.js'
 
+const dangerToast = 'text-bg-danger'
 const account = AccountStore()
 const game = GameStore()
 
@@ -14,7 +15,7 @@ const getRandomGame = async () => {
     const contract = await contractHandleGames()
     contract.methods.getRandomGame().send({ from: accounts[0] })
   } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
+    showToast('Error', err.message, dangerToast)
   }
 }
 
@@ -29,7 +30,7 @@ watchEffect(async () => {
       router.push({ name: 'acceptgame' })
     })
   } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
+    showToast('Error', err.message, dangerToast)
   }
 })
 
@@ -41,7 +42,7 @@ watchEffect(async () => {
       showToast('No game found', 'There are no games available, try again later', 'text-bg-warning')
     })
   } catch (err) {
-    showToast('Error', err.message, 'text-bg-danger')
+    showToast('Error', err.message, dangerToast)
   }
 })
 </script>
