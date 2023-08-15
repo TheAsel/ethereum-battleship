@@ -2,6 +2,7 @@ import HandleGames from '../../build/contracts/HandleGames.json'
 import Battleship from '../../build/contracts/Battleship.json'
 import Web3 from 'web3'
 import { useMetaMaskWallet } from 'vue-connect-wallet'
+
 const wallet = useMetaMaskWallet()
 
 export const isConnected = async () => {

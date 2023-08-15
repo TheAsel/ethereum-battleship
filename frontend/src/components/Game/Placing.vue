@@ -3,6 +3,7 @@ import { ref, watchEffect } from 'vue'
 import router from '@/router'
 import { GameStore } from '@/stores/store'
 import { contractBattleship, getEthAccounts, showToast } from '@/utils.js'
+import { StandardMerkleTree } from '@openzeppelin/merkle-tree'
 
 const game = GameStore()
 const selected = ref(new Array(64).fill(false))
@@ -26,11 +27,34 @@ const countPlaced = () => {
   placed.value = selected.value.filter(Boolean).length
 }
 
+const generateSecureSalt = () => {
+  const buffer = new Uint8Array(32)
+  window.crypto.getRandomValues(buffer)
+  let salt = ''
+  for (let i = 0; i < buffer.length; i++) {
+    salt += buffer[i].toString(16).padStart(2, '0')
+  }
+  return salt
+}
+
+const hashBoard = () => {
+  const hashedArray = []
+  for (let i = 0; i < selected.value.length; i++) {
+    const salt = generateSecureSalt()
+    hashedArray.push([selected.value[i], i, salt])
+  }
+  return hashedArray
+}
+
 const commitBoard = async () => {
   try {
+    const hashedSelected = hashBoard()
+    const tree = StandardMerkleTree.of(hashedSelected, ['bool', 'uint', 'string'])
     const accounts = await getEthAccounts()
     const contract = await contractBattleship(game.getGameId)
-    contract.methods.commitBoard().send({ from: accounts[0] })
+    contract.methods.commitBoard(tree.root).send({ from: accounts[0] })
+    game.updateBoard(selected)
+    game.updateTree(tree.dump())
   } catch (err) {
     showToast('Error', err.message, 'text-bg-danger')
   }
