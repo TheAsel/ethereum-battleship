@@ -63,11 +63,32 @@ td {
   height: 50px;
   border: 1px solid #dee2e6;
 }
-.colored {
+.ship {
   margin: auto;
   width: 100%;
   height: 100%;
   background-color: #198754;
+}
+
+.sunk {
+  margin: auto;
+  width: 100%;
+  height: 100%;
+  background-color: #dc3545;
+}
+
+.miss {
+  margin: auto;
+  width: 100%;
+  height: 100%;
+  background-color: #0d6efd;
+}
+
+.unconfirm {
+  margin: auto;
+  width: 100%;
+  height: 100%;
+  background-color: #ffc107;
 }
 
 td:hover {

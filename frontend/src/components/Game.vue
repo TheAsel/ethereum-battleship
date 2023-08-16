@@ -24,16 +24,17 @@ const Phase = {
 
 try {
   const playerOne = await contract.value.methods.playerOne().call()
+  game.updatePlayerOne(playerOne)
   const playerTwo = await contract.value.methods.playerTwo().call()
+  game.updatePlayerTwo(playerTwo)
   if (!(accounts.value[0] == playerOne || accounts.value[0] == playerTwo)) {
     showToast('Error', 'You are not a player of this game')
     router.push({ name: 'home' })
   } else {
     const opponent = accounts.value[0] == playerOne ? playerTwo : playerOne
+    game.updateOpponent(opponent)
   }
   const gamePhase = await contract.value.methods.gamePhase().call()
-  console.log(gamePhase)
-  console.log(Phase.Paying)
   switch (gamePhase) {
     case Phase.Paying:
       router.push({ name: 'deposit' })
@@ -48,6 +49,8 @@ try {
       router.push({ name: 'home' })
       break
   }
+  const agreedBet = await contract.value.methods.agreedBet().call()
+  game.updateAgreedBet(agreedBet)
 } catch (err) {
   showToast('Error', err.message)
   router.push({ name: 'home' })

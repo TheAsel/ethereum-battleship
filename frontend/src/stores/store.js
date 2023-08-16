@@ -13,17 +13,25 @@ export const AccountStore = defineStore('account', {
 })
 
 export const GameStore = defineStore('game', {
-  state: () => ({ board: '', tree: '' }),
+  state: () => ({ playerOne: '', playerTwo: '', agreedBet: '', opponent: '' }),
   getters: {
-    getBoard: (state) => state.board,
-    getTree: (state) => state.tree
+    getPlayerOne: (state) => state.playerOne,
+    getPlayerTwo: (state) => state.playerTwo,
+    getAgreedBet: (state) => state.agreedBet,
+    getOpponent: (state) => state.opponent
   },
   actions: {
-    updateBoard(newBoard) {
-      this.board = newBoard
+    updatePlayerOne(newPlayer) {
+      this.playerOne = newPlayer
     },
-    updateTree(newTree) {
-      this.tree = newTree
+    updatePlayerTwo(newPlayer) {
+      this.playerTwo = newPlayer
+    },
+    updateAgreedBet(newBet) {
+      this.agreedBet = newBet
+    },
+    updateOpponent(newOpponent) {
+      this.opponent = newOpponent
     }
   }
 })

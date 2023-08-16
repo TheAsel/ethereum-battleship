@@ -1,11 +1,9 @@
 <script setup>
 import { ref, watchEffect } from 'vue'
 import router from '@/router'
-import { GameStore } from '@/stores/store'
 import { contractBattleship, getEthAccounts, showToast } from '@/utils.js'
 import { StandardMerkleTree } from '@openzeppelin/merkle-tree'
 
-const game = GameStore()
 const gameId = ref(localStorage.getItem('gameId'))
 const selected = ref(new Array(64).fill(false))
 const placed = ref(0)
@@ -44,7 +42,7 @@ const hashBoard = () => {
   const hashedArray = []
   for (let i = 0; i < selected.value.length; i++) {
     const salt = generateSecureSalt()
-    hashedArray.push([selected.value[i], i, salt])
+    hashedArray.push([i, selected.value[i], salt])
   }
   return hashedArray
 }
@@ -52,10 +50,10 @@ const hashBoard = () => {
 const commitBoard = () => {
   try {
     const hashedSelected = hashBoard()
-    const tree = StandardMerkleTree.of(hashedSelected, ['bool', 'uint', 'string'])
+    const tree = StandardMerkleTree.of(hashedSelected, ['uint', 'bool', 'string'])
     contract.value.methods.commitBoard(tree.root).send({ from: accounts.value[0] })
-    game.updateBoard(selected)
-    game.updateTree(tree.dump())
+    localStorage.setItem('board', JSON.stringify(selected))
+    localStorage.setItem('tree', JSON.stringify(tree.dump()))
   } catch (err) {
     showToast('Error', err.message)
   }
@@ -105,7 +103,7 @@ watchEffect(() => {
           <table class="table">
             <tr v-for="row in 8" :key="row">
               <td v-for="col in 8" :key="col">
-                <div :class="{ colored: isPlaced(row, col) }" @click="place(row, col)"></div>
+                <div :class="{ ship: isPlaced(row, col) }" @click="place(row, col)"></div>
               </td>
             </tr>
           </table>
@@ -121,7 +119,7 @@ td {
   height: 50px;
   border: 1px solid #dee2e6;
 }
-.colored {
+.ship {
   margin: auto;
   width: 100%;
   height: 100%;
