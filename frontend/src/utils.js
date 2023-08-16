@@ -28,7 +28,7 @@ export const contractHandleGames = async () => {
   return new web3.eth.Contract(abi, contractAddress)
 }
 
-export const contractBattleship = async (address) => {
+export const contractBattleship = (address) => {
   let web3 = new Web3(window.ethereum)
   const { abi } = Battleship
   return new web3.eth.Contract(abi, address)

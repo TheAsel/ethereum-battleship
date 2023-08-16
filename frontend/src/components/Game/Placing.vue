@@ -35,7 +35,7 @@ const generateSecureSalt = () => {
   for (let i = 0; i < buffer.length; i++) {
     salt += buffer[i].toString(16).padStart(2, '0')
   }
-  return salt
+  return window.BigInt('0x' + salt).toString(10)
 }
 
 const hashBoard = () => {
@@ -50,7 +50,7 @@ const hashBoard = () => {
 const commitBoard = () => {
   try {
     const hashedSelected = hashBoard()
-    const tree = StandardMerkleTree.of(hashedSelected, ['uint', 'bool', 'string'])
+    const tree = StandardMerkleTree.of(hashedSelected, ['uint8', 'bool', 'uint256'])
     contract.value.methods.commitBoard(tree.root).send({ from: accounts.value[0] })
     localStorage.setItem('board', JSON.stringify(selected))
     localStorage.setItem('tree', JSON.stringify(tree.dump()))

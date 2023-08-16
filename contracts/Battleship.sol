@@ -10,6 +10,7 @@ contract Battleship {
     uint256 public agreedBet;
     mapping(address => bool) payedBet;
     mapping(address => bytes32) playerTreeRoot;
+    address public playerTurn;
 
     // various phases of the game
     enum Phase {
@@ -22,13 +23,30 @@ contract Battleship {
     // the current phase of the game
     Phase public gamePhase;
 
+    // possible values of a cell
+    enum Cell {
+        None,
+        Unconfirm,
+        Sunk,
+        Miss
+    }
+
+    struct Shot {
+        uint8 index;
+        Cell value;
+    }
+
+    mapping(address => Shot[]) playerShots;
+    mapping(address => mapping(uint8 => bool)) playerShotsMap;
+    mapping(address => uint8) playerHits;
+
     // ---- Events
     // emitted when both players paid the bet
     event BetPayed();
     // emitted when both players placed their ships
     event GameStart();
-    // emitted when there is an error
-    event Error(string error);
+    // emitted when a player takes a shot
+    event ShotTaken(address indexed player, uint8 index);
 
     // ---- Modifiers
     // checks that the sender is player one or two
@@ -37,6 +55,12 @@ contract Battleship {
             msg.sender == playerOne || msg.sender == playerTwo,
             "You aren't a player of this game"
         );
+        _;
+    }
+
+    // checks if it's the message sender's turn
+    modifier isPlayerTurn() {
+        require(msg.sender == playerTurn);
         _;
     }
 
@@ -74,6 +98,7 @@ contract Battleship {
     }
 
     // ---- External functions
+    // contract constructor
     constructor(address creator, uint256 bet) {
         playerOne = creator;
         agreedBet = bet;
@@ -103,10 +128,90 @@ contract Battleship {
         playerTreeRoot[msg.sender] = merkleTreeRoot;
         if (playerTreeRoot[playerOne] != 0 && playerTreeRoot[playerTwo] != 0) {
             gamePhase = Phase.Playing;
+            playerTurn = playerOne;
             emit GameStart();
         }
     }
 
+    // first shot, nothing to confirm
+    function shoot(uint8 index) external isPlayerTurn playingPhase {
+        takeShot(index);
+    }
+
+    // confirms a hit/miss of the opponent and then shoots
+    function confirmAndShoot(
+        uint8 index,
+        bool ship,
+        uint256 salt,
+        bytes32[] memory proof,
+        uint8 shotIndex
+    ) external isPlayerTurn playingPhase {
+        address opponent = getOpponent(msg.sender);
+        uint lastIndex = playerShots[opponent].length - 1;
+        require(
+            playerShots[opponent][lastIndex].index == index,
+            "Stored and sent indexes of the shot to confirm don't match"
+        );
+        require(
+            playerShots[opponent][lastIndex].value == Cell.Unconfirm,
+            "Invalid cell value"
+        );
+        if (!merkleVerify(index, ship, salt, proof)) {
+            // TODO: proof not verified, opponent wins
+            return;
+        }
+        if (ship) {
+            playerShots[opponent][lastIndex].value = Cell.Sunk;
+            playerHits[msg.sender]++;
+            if (playerHits[msg.sender] == 10) {
+                // TODO: all ships sunk, opponent wins
+                return;
+            }
+        } else {
+            playerShots[opponent][lastIndex].value = Cell.Miss;
+        }
+        takeShot(shotIndex);
+    }
+
+    // returns the shots taken by a player
+    function getPlayerShots(
+        address player
+    ) external view returns (Shot[] memory) {
+        return playerShots[player];
+    }
+
     // reports the opponent
     function report() external players {}
+
+    // ---- Internal functions
+    // takes a shot given an index
+    function takeShot(uint8 index) internal {
+        require(
+            !playerShotsMap[msg.sender][index],
+            "That cell has already been shot"
+        );
+        require(index < 64, "Invalid cell index");
+        playerShots[msg.sender].push(Shot(index, Cell.Unconfirm));
+        playerShotsMap[msg.sender][index] = true;
+        playerTurn = playerTurn == playerOne ? playerTwo : playerOne;
+        emit ShotTaken(msg.sender, index);
+    }
+
+    // verifies that the value is contained in the tree
+    function merkleVerify(
+        uint8 index,
+        bool ship,
+        uint256 salt,
+        bytes32[] memory proof
+    ) internal view returns (bool) {
+        bytes32 leaf = keccak256(
+            bytes.concat(keccak256(abi.encode(index, ship, salt)))
+        );
+        return MerkleProof.verify(proof, playerTreeRoot[msg.sender], leaf);
+    }
+
+    // returns the address of the sender's opponent
+    function getOpponent(address sender) internal view returns (address) {
+        return sender == playerOne ? playerTwo : playerOne;
+    }
 }

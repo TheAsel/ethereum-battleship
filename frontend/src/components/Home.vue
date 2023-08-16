@@ -6,8 +6,15 @@ import { AccountStore } from '@/stores/store'
 import { contractHandleGames, getEthAccounts, showToast } from '@/utils.js'
 
 const account = AccountStore()
-const accounts = ref(await getEthAccounts())
-const contract = ref(await contractHandleGames())
+const accounts = ref('')
+const contract = ref('')
+
+try {
+  accounts.value = await getEthAccounts()
+  contract.value = await contractHandleGames()
+} catch (err) {
+  showToast('Error', err.message)
+}
 
 const getRandomGame = () => {
   try {

@@ -13,10 +13,12 @@ import {
 const gameId = ref(localStorage.getItem('gameId'))
 const gameCreator = ref('')
 const gameBet = ref('')
-const accounts = ref(await getEthAccounts())
-const contract = ref(await contractHandleGames())
+const accounts = ref('')
+const contract = ref('')
 
 try {
+  accounts.value = await getEthAccounts()
+  contract.value = await contractHandleGames()
   const contractGame = await contractBattleship(gameId.value)
   gameCreator.value = await contractGame.methods.playerOne().call()
   gameBet.value = await contractGame.methods.agreedBet().call()
@@ -70,7 +72,7 @@ watchEffect(() => {
         </div>
       </div>
       <div class="col-6">
-        <div class="d-grid gap-2 col-9 mx-auto">
+        <div class="d-grid gap-3 col-9 mx-auto">
           <form class="row">
             <label for="gameId" class="form-label">Game's ID:</label>
             <div>

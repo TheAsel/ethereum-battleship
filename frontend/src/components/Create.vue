@@ -8,9 +8,17 @@ if (!isConnected) {
   router.push({ name: 'home' })
 }
 
-const accounts = ref(await getEthAccounts())
-const contract = ref(await contractHandleGames())
+const accounts = ref('')
+const contract = ref('')
 const bet = ''
+
+try {
+  accounts.value = await getEthAccounts()
+  contract.value = await contractHandleGames()
+} catch (err) {
+  showToast('Error', err.message)
+  router.push({ name: 'home' })
+}
 
 const createGame = (bet) => {
   try {

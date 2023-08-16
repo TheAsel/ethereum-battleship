@@ -5,9 +5,16 @@ import router from '@/router'
 import { isConnected, contractHandleGames, showToast } from '@/utils.js'
 
 const gameId = ref(localStorage.getItem('gameId'))
-const contract = ref(await contractHandleGames())
+const contract = ref('')
 
 if (!isConnected || gameId.value === '') {
+  router.push({ name: 'home' })
+}
+
+try {
+  contract.value = await contractHandleGames()
+} catch (err) {
+  showToast('Error', err.message)
   router.push({ name: 'home' })
 }
 
