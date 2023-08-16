@@ -1,29 +1,26 @@
 <script setup>
-import { watchEffect } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { RouterLink } from 'vue-router'
 import router from '@/router'
-import { AccountStore, GameStore } from '@/stores/store'
+import { AccountStore } from '@/stores/store'
 import { contractHandleGames, getEthAccounts, showToast } from '@/utils.js'
 
 const account = AccountStore()
-const game = GameStore()
+const accounts = ref(await getEthAccounts())
+const contract = ref(await contractHandleGames())
 
-const getRandomGame = async () => {
+const getRandomGame = () => {
   try {
-    const accounts = await getEthAccounts()
-    const contract = await contractHandleGames()
-    contract.methods.getRandomGame().send({ from: accounts[0] })
+    contract.value.methods.getRandomGame().send({ from: accounts.value[0] })
   } catch (err) {
     showToast('Error', err.message)
   }
 }
 
-watchEffect(async () => {
+watchEffect(() => {
   try {
-    const accounts = await getEthAccounts()
-    const contract = await contractHandleGames()
-    contract.events.GameInfo({ filter: { sender: accounts[0] } }).on('data', (data) => {
-      game.updateGameId(data.returnValues.gameId)
+    contract.value.events.GameInfo({ filter: { sender: accounts.value[0] } }).on('data', (data) => {
+      localStorage.setItem('gameId', data.returnValues.gameId)
       router.push({ name: 'acceptgame' })
     })
   } catch (err) {
@@ -31,11 +28,9 @@ watchEffect(async () => {
   }
 })
 
-watchEffect(async () => {
+watchEffect(() => {
   try {
-    const accounts = await getEthAccounts()
-    const contract = await contractHandleGames()
-    contract.events.GameNotFound({ filter: { from: accounts[0] } }).on('data', () => {
+    contract.value.events.GameNotFound({ filter: { from: accounts.value[0] } }).on('data', () => {
       showToast('No game found', 'There are no games available, try again later', 'text-bg-warning')
     })
   } catch (err) {
@@ -60,7 +55,7 @@ watchEffect(async () => {
         <h1 class="display-2 me-5">Ethereum Battleship</h1>
       </div>
       <div class="col">
-        <div class="d-flex" style="height: 200px">
+        <div class="d-flex" style="height: 300px">
           <div class="vr"></div>
         </div>
       </div>
@@ -69,6 +64,7 @@ watchEffect(async () => {
           <RouterLink class="btn btn-success" type="button" to="/create">
             Create a new game
           </RouterLink>
+          <hr />
           <RouterLink class="btn btn-success" type="button" to="/join"
             >Join a game by ID</RouterLink
           >

@@ -6,8 +6,11 @@ import { contractBattleship, getEthAccounts, showToast } from '@/utils.js'
 import { StandardMerkleTree } from '@openzeppelin/merkle-tree'
 
 const game = GameStore()
+const gameId = ref(localStorage.getItem('gameId'))
 const selected = ref(new Array(64).fill(false))
 const placed = ref(0)
+const accounts = ref(await getEthAccounts())
+const contract = ref(await contractBattleship(gameId.value))
 
 const isPlaced = (row, col) => {
   return selected.value[(row - 1) * 8 + col - 1]
@@ -46,13 +49,11 @@ const hashBoard = () => {
   return hashedArray
 }
 
-const commitBoard = async () => {
+const commitBoard = () => {
   try {
     const hashedSelected = hashBoard()
     const tree = StandardMerkleTree.of(hashedSelected, ['bool', 'uint', 'string'])
-    const accounts = await getEthAccounts()
-    const contract = await contractBattleship(game.getGameId)
-    contract.methods.commitBoard(tree.root).send({ from: accounts[0] })
+    contract.value.methods.commitBoard(tree.root).send({ from: accounts.value[0] })
     game.updateBoard(selected)
     game.updateTree(tree.dump())
   } catch (err) {
@@ -60,10 +61,9 @@ const commitBoard = async () => {
   }
 }
 
-watchEffect(async () => {
+watchEffect(() => {
   try {
-    const contract = await contractBattleship()
-    contract.events.GameStart().on('data', () => {
+    contract.value.events.GameStart().on('data', () => {
       router.push({ name: 'play' })
     })
   } catch (err) {

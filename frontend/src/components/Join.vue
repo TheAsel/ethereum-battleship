@@ -1,20 +1,18 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import router from '@/router'
-import { GameStore } from '@/stores/store'
 import { isConnected, contractBattleship, showToast } from '@/utils.js'
 
-const game = GameStore()
-const gameid = ''
+const gameId = ''
 
 if (!isConnected) {
   router.push({ name: 'home' })
 }
 
-const getGameInfo = async (gameid) => {
+const getGameInfo = async (gameId) => {
   try {
-    await contractBattleship(gameid)
-    game.updateGameId(gameid)
+    await contractBattleship(gameId)
+    localStorage.setItem('gameId', gameId)
     router.push({ name: 'acceptgame' })
   } catch (err) {
     showToast('Error', err.message)
@@ -38,7 +36,7 @@ const getGameInfo = async (gameid) => {
         <h1 class="display-2 me-5">Ethereum Battleship</h1>
       </div>
       <div class="col">
-        <div class="d-flex" style="height: 200px">
+        <div class="d-flex" style="height: 300px">
           <div class="vr"></div>
         </div>
       </div>
@@ -49,12 +47,12 @@ const getGameInfo = async (gameid) => {
               <input
                 type="text"
                 class="form-control"
-                v-model="gameid"
+                v-model="gameId"
                 placeholder="Enter the game's ID..."
               />
             </div>
             <div class="col-auto">
-              <button class="btn btn-success" type="button" @click="getGameInfo(gameid)">
+              <button class="btn btn-success" type="button" @click="getGameInfo(gameId)">
                 Join
               </button>
             </div>

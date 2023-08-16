@@ -1,35 +1,33 @@
 <script setup>
-import { watchEffect } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { RouterLink } from 'vue-router'
 import router from '@/router'
-import { GameStore } from '@/stores/store'
 import { isConnected, contractHandleGames, getEthAccounts, showToast } from '@/utils.js'
 
 if (!isConnected) {
   router.push({ name: 'home' })
 }
 
-const game = GameStore()
+const accounts = ref(await getEthAccounts())
+const contract = ref(await contractHandleGames())
 const bet = ''
 
-const createGame = async (bet) => {
+const createGame = (bet) => {
   try {
-    const accounts = await getEthAccounts()
-    const contract = await contractHandleGames()
-    contract.methods.createGame(bet).send({ from: accounts[0] })
+    contract.value.methods.createGame(bet).send({ from: accounts.value[0] })
   } catch (err) {
     showToast('Error', err.message)
   }
 }
 
-watchEffect(async () => {
+watchEffect(() => {
   try {
-    const accounts = await getEthAccounts()
-    const contract = await contractHandleGames()
-    contract.events.GameCreated({ filter: { from: accounts[0] } }).on('data', (data) => {
-      game.updateGameId(data.returnValues.gameId)
-      router.push({ name: 'waiting' })
-    })
+    contract.value.events
+      .GameCreated({ filter: { from: accounts.value[0] } })
+      .on('data', (data) => {
+        localStorage.setItem('gameId', data.returnValues.gameId)
+        router.push({ name: 'waiting' })
+      })
   } catch (err) {
     showToast('Error', err.message)
   }
@@ -52,7 +50,7 @@ watchEffect(async () => {
         <h1 class="display-2 me-5">Ethereum Battleship</h1>
       </div>
       <div class="col">
-        <div class="d-flex" style="height: 200px">
+        <div class="d-flex" style="height: 300px">
           <div class="vr"></div>
         </div>
       </div>

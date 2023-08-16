@@ -2,7 +2,6 @@
 import { ref, watchEffect } from 'vue'
 import { RouterLink } from 'vue-router'
 import router from '@/router'
-import { GameStore } from '@/stores/store'
 import {
   isConnected,
   contractHandleGames,
@@ -11,15 +10,16 @@ import {
   showToast
 } from '@/utils.js'
 
-const game = GameStore()
-const gameId = ref(game.getGameId)
+const gameId = ref(localStorage.getItem('gameId'))
 const gameCreator = ref('')
 const gameBet = ref('')
+const accounts = ref(await getEthAccounts())
+const contract = ref(await contractHandleGames())
 
 try {
-  const contract = await contractBattleship(gameId.value)
-  gameCreator.value = await contract.methods.playerOne().call()
-  gameBet.value = await contract.methods.agreedBet().call()
+  const contractGame = await contractBattleship(gameId.value)
+  gameCreator.value = await contractGame.methods.playerOne().call()
+  gameBet.value = await contractGame.methods.agreedBet().call()
 } catch (err) {
   showToast('Error', err.message)
   router.push({ name: 'home' })
@@ -29,21 +29,18 @@ if (!isConnected || gameId.value === '') {
   router.push({ name: 'home' })
 }
 
-const joinGame = async () => {
+const joinGame = () => {
   try {
-    const accounts = await getEthAccounts()
-    const contract = await contractHandleGames()
-    contract.methods.joinGame(gameId.value).send({ from: accounts[0] })
+    contract.value.methods.joinGame(gameId.value).send({ from: accounts.value[0] })
   } catch (err) {
     showToast('Error', err.message)
   }
 }
 
-watchEffect(async () => {
+watchEffect(() => {
   try {
-    const accounts = await getEthAccounts()
-    const contract = await contractHandleGames()
-    contract.events.GameJoined({ filter: { by: accounts[0] } }).on('data', () => {
+    contract.value.events.GameJoined({ filter: { by: accounts.value[0] } }).on('data', () => {
+      localStorage.setItem('gameId', gameId.value)
       router.push({ name: 'deposit' })
     })
   } catch (err) {
@@ -73,7 +70,7 @@ watchEffect(async () => {
         </div>
       </div>
       <div class="col-6">
-        <div class="d-grid gap-4 col-9 mx-auto">
+        <div class="d-grid gap-2 col-9 mx-auto">
           <form class="row">
             <label for="gameId" class="form-label">Game's ID:</label>
             <div>

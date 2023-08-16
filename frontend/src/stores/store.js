@@ -13,16 +13,12 @@ export const AccountStore = defineStore('account', {
 })
 
 export const GameStore = defineStore('game', {
-  state: () => ({ gameId: '', board: '', tree: '' }),
+  state: () => ({ board: '', tree: '' }),
   getters: {
-    getGameId: (state) => state.gameId,
     getBoard: (state) => state.board,
     getTree: (state) => state.tree
   },
   actions: {
-    updateGameId(newGameId) {
-      this.gameId = newGameId
-    },
     updateBoard(newBoard) {
       this.board = newBoard
     },

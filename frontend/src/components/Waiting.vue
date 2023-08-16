@@ -2,11 +2,10 @@
 import { ref, watchEffect } from 'vue'
 import useClipboard from 'vue-clipboard3'
 import router from '@/router'
-import { GameStore } from '@/stores/store'
 import { isConnected, contractHandleGames, showToast } from '@/utils.js'
 
-const game = GameStore()
-const gameId = ref(game.getGameId)
+const gameId = ref(localStorage.getItem('gameId'))
+const contract = ref(await contractHandleGames())
 
 if (!isConnected || gameId.value === '') {
   router.push({ name: 'home' })
@@ -19,10 +18,9 @@ const copy = async () => {
   showToast('Copied', 'Game ID copied to clipboard', 'text-bg-success')
 }
 
-watchEffect(async () => {
+watchEffect(() => {
   try {
-    const contract = await contractHandleGames()
-    contract.events.GameJoined({ filter: { gameId: gameId.value } }).on('data', () => {
+    contract.value.events.GameJoined({ filter: { gameId: gameId.value } }).on('data', () => {
       router.push({ name: 'deposit' })
     })
   } catch (err) {
@@ -47,7 +45,7 @@ watchEffect(async () => {
         <h1 class="display-2 me-5">Ethereum Battleship</h1>
       </div>
       <div class="col">
-        <div class="d-flex" style="height: 200px">
+        <div class="d-flex" style="height: 300px">
           <div class="vr"></div>
         </div>
       </div>

@@ -1,35 +1,31 @@
 <script setup>
 import { ref, watchEffect } from 'vue'
 import router from '@/router'
-import { GameStore } from '@/stores/store'
 import { contractBattleship, getEthAccounts, showToast } from '@/utils.js'
 
-const game = GameStore()
-const gameId = ref(game.getGameId)
+const gameId = ref(localStorage.getItem('gameId'))
 const gameBet = ref('')
+const accounts = ref(await getEthAccounts())
+const contract = ref(await contractBattleship(gameId.value))
 
 try {
-  const contract = await contractBattleship(gameId.value)
-  gameBet.value = await contract.methods.agreedBet().call()
+  gameBet.value = await contract.value.methods.agreedBet().call()
 } catch (err) {
   showToast('Error', err.message)
   router.push({ name: 'home' })
 }
 
-const depositBet = async () => {
+const depositBet = () => {
   try {
-    const accounts = await getEthAccounts()
-    const contract = await contractBattleship(gameId.value)
-    contract.methods.depositBet().send({ from: accounts[0], value: gameBet.value })
+    contract.value.methods.depositBet().send({ from: accounts.value[0], value: gameBet.value })
   } catch (err) {
     showToast('Error', err.message)
   }
 }
 
-watchEffect(async () => {
+watchEffect(() => {
   try {
-    const contract = await contractBattleship(gameId.value)
-    contract.events.BetPayed().on('data', () => {
+    contract.value.events.BetPayed().on('data', () => {
       router.push({ name: 'placing' })
     })
   } catch (err) {
@@ -54,7 +50,7 @@ watchEffect(async () => {
         <h1 class="display-2 me-5">Ethereum Battleship</h1>
       </div>
       <div class="col">
-        <div class="d-flex" style="height: 200px">
+        <div class="d-flex" style="height: 300px">
           <div class="vr"></div>
         </div>
       </div>
