@@ -22,11 +22,8 @@ const updateShots = async () => {
     playerTurn.value = await contract.value.methods.playerTurn().call()
     yourTurn.value = playerTurn.value === accounts.value[0]
     yourShots.value = await contract.value.methods.getPlayerShots(accounts.value[0]).call()
-    console.log('Your shots: ', yourShots.value)
     opponentShots.value = await contract.value.methods.getPlayerShots(opponent.value).call()
-    console.log("Opponent's shots: ", opponentShots.value)
     unconfirmedShot.value = opponentShots.value.filter((i) => i.value === Cell.Unconfirm)
-    console.log('Unconfirmed shot: ', unconfirmedShot.value[0])
   } catch (err) {
     showToast('Error', err.message)
   }
@@ -40,42 +37,6 @@ const Cell = {
   Sunk: window.BigInt(2),
   Miss: window.BigInt(3)
 }
-
-const shoot = async (row, col) => {
-  try {
-    if (canShoot(row, col)) {
-      const pos = (row - 1) * 8 + col - 1
-      const firstShot = unconfirmedShot.value.length === 0
-      if (firstShot) {
-        await contract.value.methods.shoot(pos).send({ from: accounts.value[0] })
-      } else {
-        const posCheck = parseInt(unconfirmedShot.value[0].index)
-        console.log(posCheck)
-        const values = tree.values.find((v) => v.value[0] === posCheck).value
-        console.log('values: ', values)
-        const proof = tree.getProof(posCheck)
-        await contract.value.methods
-          .confirmAndShoot(values[0], values[1], window.BigInt(values[2]), proof, pos)
-          .send({ from: accounts.value[0] })
-      }
-    }
-  } catch (err) {
-    showToast('Error', err.message)
-  }
-}
-
-watchEffect(() => {
-  try {
-    contract.value.events.ShotTaken().on('data', (data) => {
-      if (data.returnValues.player === opponent.value) {
-        showToast('Your turn', "Your opponent took a shot! It's now your turn", 'text-bg-success')
-      }
-      updateShots()
-    })
-  } catch (err) {
-    showToast('Error', err.message)
-  }
-})
 
 const canShoot = (row, col) => {
   return cellValue(row, col, false) === '' && yourTurn.value
@@ -110,6 +71,40 @@ const cellValue = (row, col, yourBoard) => {
     showToast('Error', err.message)
   }
 }
+
+const shoot = async (row, col) => {
+  try {
+    if (canShoot(row, col)) {
+      const pos = (row - 1) * 8 + col - 1
+      const firstShot = unconfirmedShot.value.length === 0
+      if (firstShot) {
+        await contract.value.methods.shoot(pos).send({ from: accounts.value[0] })
+      } else {
+        const posCheck = parseInt(unconfirmedShot.value[0].index)
+        const values = tree.values.find((v) => v.value[0] === posCheck).value
+        const proof = tree.getProof(posCheck)
+        await contract.value.methods
+          .confirmAndShoot(values[0], values[1], window.BigInt(values[2]), proof, pos)
+          .send({ from: accounts.value[0] })
+      }
+    }
+  } catch (err) {
+    showToast('Error', err.message)
+  }
+}
+
+watchEffect(() => {
+  try {
+    contract.value.events.ShotTaken().on('data', (data) => {
+      if (data.returnValues.player === opponent.value) {
+        showToast('Your turn', "Your opponent took a shot! It's now your turn", 'text-bg-success')
+      }
+      updateShots()
+    })
+  } catch (err) {
+    showToast('Error', err.message)
+  }
+})
 </script>
 
 <template>
@@ -210,7 +205,9 @@ td {
 
 .crosshair:hover {
   content: url('@/assets/crosshair.svg');
-  padding: 2px;
+  max-width: 49px;
+  max-height: 49px;
+  padding: 3px;
   border: 2px solid #dc3545;
 }
 </style>

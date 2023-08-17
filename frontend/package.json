@@ -13,6 +13,7 @@
     "@openzeppelin/merkle-tree": "^1.0.5",
     "bootstrap": "^5.3.0",
     "bootstrap-show-toast": "^1.1.5",
+    "buffer": "^6.0.3",
     "pinia": "^2.1.4",
     "vue": "^3.3.4",
     "vue-clipboard3": "^2.0.0",
