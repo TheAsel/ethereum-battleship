@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg1"
+   width="100"
+   height="100"
+   viewBox="0 0 100 100"
+   sodipodi:docname="peg.png"
+   inkscape:export-filename="red-peg.svg"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050" />
+  <circle
+     style="fill:#084298;fill-opacity:1;stroke-width:2.41586"
+     id="path226"
+     cx="50"
+     cy="50"
+     inkscape:label="black"
+     r="45" />
+  <circle
+     style="fill:#0d6efd;fill-opacity:1;stroke-width:4.65041"
+     id="path227"
+     cx="50"
+     cy="50"
+     inkscape:label="white"
+     r="42.300007" />
+  <circle
+     style="fill:#0a58ca;fill-opacity:1;stroke-width:3.15135"
+     id="path228"
+     cx="50"
+     cy="50"
+     inkscape:label="grey"
+     r="26.999998" />
+</svg>

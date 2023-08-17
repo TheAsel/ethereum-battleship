@@ -64,31 +64,31 @@ td {
   border: 1px solid #dee2e6;
 }
 .ship {
-  margin: auto;
   width: 100%;
   height: 100%;
-  background-color: #198754;
+  background-image: url('@/assets/green-peg.svg');
+  background-size: 100% 100%;
 }
 
 .sunk {
-  margin: auto;
   width: 100%;
   height: 100%;
-  background-color: #dc3545;
+  background-image: url('@/assets/red-peg.svg');
+  background-size: 100% 100%;
 }
 
 .miss {
-  margin: auto;
   width: 100%;
   height: 100%;
-  background-color: #0d6efd;
+  background-image: url('@/assets/blue-peg.svg');
+  background-size: 100% 100%;
 }
 
 .unconfirm {
-  margin: auto;
   width: 100%;
   height: 100%;
-  background-color: #ffc107;
+  background-image: url('@/assets/yellow-peg.svg');
+  background-size: 100% 100%;
 }
 
 td:hover {

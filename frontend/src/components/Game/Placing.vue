@@ -102,8 +102,8 @@ watchEffect(() => {
         <div class="d-grid gap-3 col-9 mx-auto">
           <table class="table">
             <tr v-for="row in 8" :key="row">
-              <td v-for="col in 8" :key="col">
-                <div :class="{ ship: isPlaced(row, col) }" @click="place(row, col)"></div>
+              <td v-for="col in 8" :key="col" @click="place(row, col)">
+                <div :class="{ ship: isPlaced(row, col) }"></div>
               </td>
             </tr>
           </table>
@@ -119,11 +119,12 @@ td {
   height: 50px;
   border: 1px solid #dee2e6;
 }
+
 .ship {
-  margin: auto;
   width: 100%;
   height: 100%;
-  background-color: #198754;
+  background-image: url('@/assets/green-peg.svg');
+  background-size: 100% 100%;
 }
 
 td:hover {
