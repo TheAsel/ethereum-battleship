@@ -46,7 +46,7 @@ contract Battleship {
     // emitted when both players placed their ships
     event GameStart();
     // emitted when a player takes a shot
-    event ShotTaken(address indexed player, uint8 index);
+    event ShotTaken(address indexed player);
 
     // ---- Modifiers
     // checks that the sender is player one or two
@@ -194,7 +194,7 @@ contract Battleship {
         playerShots[msg.sender].push(Shot(index, Cell.Unconfirm));
         playerShotsMap[msg.sender][index] = true;
         playerTurn = playerTurn == playerOne ? playerTwo : playerOne;
-        emit ShotTaken(msg.sender, index);
+        emit ShotTaken(msg.sender);
     }
 
     // verifies that the value is contained in the tree
