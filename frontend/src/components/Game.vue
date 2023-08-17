@@ -51,6 +51,8 @@ try {
   }
   const agreedBet = await contract.value.methods.agreedBet().call()
   game.updateAgreedBet(agreedBet)
+  const playerTurn = await contract.value.methods.playerTurn().call()
+  game.updatePlayerTurn(playerTurn)
 } catch (err) {
   showToast('Error', err.message)
   router.push({ name: 'home' })

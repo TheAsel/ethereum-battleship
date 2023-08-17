@@ -1,9 +1,11 @@
 <script setup>
 import { ref, watchEffect } from 'vue'
 import router from '@/router'
+import { GameStore } from '@/stores/store'
 import { contractBattleship, getEthAccounts, showToast } from '@/utils.js'
 import { StandardMerkleTree } from '@openzeppelin/merkle-tree'
 
+const game = GameStore()
 const gameId = ref(localStorage.getItem('gameId'))
 const selected = ref(new Array(64).fill(false))
 const placed = ref(0)
@@ -62,6 +64,8 @@ const commitBoard = () => {
 watchEffect(() => {
   try {
     contract.value.events.GameStart().on('data', () => {
+      const playerTurn = contract.value.methods.playerTurn().call()
+      game.updatePlayerTurn(playerTurn)
       router.push({ name: 'play' })
     })
   } catch (err) {
