@@ -1,21 +1,33 @@
 <script setup>
 import { ref, watchEffect } from 'vue'
-import { GameStore } from '@/stores/store'
+import router from '@/router'
 import { BOARD_SIDE, BOARD_SIZE, contractBattleship, getEthAccounts, showToast } from '@/utils.js'
 import { StandardMerkleTree } from '@openzeppelin/merkle-tree'
 
-const game = GameStore()
 const gameId = ref(localStorage.getItem('gameId'))
-const accounts = ref(await getEthAccounts())
-const contract = ref(await contractBattleship(gameId.value))
-const playerTurn = ref(game.getPlayerTurn)
-const yourTurn = ref(playerTurn.value === accounts.value[0])
+const accounts = ref()
+const contract = ref()
+const playerTurn = ref()
+const yourTurn = ref()
 const board = JSON.parse(localStorage.getItem('board'))
 const tree = StandardMerkleTree.load(JSON.parse(localStorage.getItem('tree')))
-const opponent = ref(game.getOpponent)
+const opponent = ref()
+const gamePhase = ref()
 const yourShots = ref(new Array(BOARD_SIZE))
 const opponentShots = ref(new Array(BOARD_SIZE))
 const unconfirmedShot = ref()
+
+try {
+  accounts.value = await getEthAccounts()
+  contract.value = await contractBattleship(gameId.value)
+  const playerOne = await contract.value.methods.playerOne().call()
+  const playerTwo = await contract.value.methods.playerTwo().call()
+  opponent.value = accounts.value[0] == playerOne ? playerTwo : playerOne
+  gamePhase.value = await contract.value.methods.gamePhase().call()
+} catch (err) {
+  showToast('Error', err.message)
+  router.push({ name: 'home' })
+}
 
 const updateShots = async () => {
   try {
@@ -24,7 +36,7 @@ const updateShots = async () => {
     yourShots.value = await contract.value.methods.getPlayerShots(accounts.value[0]).call()
     opponentShots.value = await contract.value.methods.getPlayerShots(opponent.value).call()
     unconfirmedShot.value = opponentShots.value.filter((i) => i.value === Cell.Unconfirm)
-    if (yourTurn.value) {
+    if (yourTurn.value && gamePhase.value == window.BigInt(3)) {
       showToast('Your turn', "It's your turn! Click a cell to take a shot", 'text-bg-success')
     }
   } catch (err) {
@@ -100,6 +112,16 @@ watchEffect(() => {
   try {
     contract.value.events.ShotTaken().on('data', () => {
       updateShots()
+    })
+  } catch (err) {
+    showToast('Error', err.message)
+  }
+})
+
+watchEffect(() => {
+  try {
+    contract.value.events.Won().on('data', () => {
+      router.push({ name: 'verify' })
     })
   } catch (err) {
     showToast('Error', err.message)

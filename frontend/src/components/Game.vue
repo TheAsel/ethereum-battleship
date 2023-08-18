@@ -1,19 +1,17 @@
 <script setup>
-import { ref, watchEffect } from 'vue'
-import { RouterView } from 'vue-router'
+import { ref, watch, watchEffect } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
 import router from '@/router'
-import { GameStore } from '@/stores/store'
 import { isConnected, contractBattleship, getEthAccounts, showToast } from '@/utils.js'
 
-const game = GameStore()
 const gameId = ref(localStorage.getItem('gameId'))
 
 if (!isConnected || gameId.value == null) {
   router.push({ name: 'home' })
 }
 
-const accounts = ref(await getEthAccounts())
-const contract = ref(await contractBattleship(gameId.value))
+const accounts = ref()
+const contract = ref()
 const gamePhase = ref()
 const canReport = ref(false)
 
@@ -28,16 +26,14 @@ const Phase = {
 }
 
 try {
+  accounts.value = await getEthAccounts()
+  contract.value = await contractBattleship(gameId.value)
   const playerOne = await contract.value.methods.playerOne().call()
-  game.updatePlayerOne(playerOne)
   const playerTwo = await contract.value.methods.playerTwo().call()
-  game.updatePlayerTwo(playerTwo)
   if (!(accounts.value[0] == playerOne || accounts.value[0] == playerTwo)) {
     showToast('Error', 'You are not a player of this game')
     router.push({ name: 'home' })
   } else {
-    const opponent = accounts.value[0] == playerOne ? playerTwo : playerOne
-    game.updateOpponent(opponent)
     gamePhase.value = await contract.value.methods.gamePhase().call()
     canReport.value = !(gamePhase.value === Phase.Withdraw || gamePhase.value === Phase.End)
     switch (gamePhase.value) {
@@ -57,16 +53,12 @@ try {
         router.push({ name: 'withdraw' })
         break
       case Phase.End:
-        router.push({ name: 'gome' })
+        router.push({ name: 'home' })
         break
       default:
         router.push({ name: 'home' })
         break
     }
-    const agreedBet = await contract.value.methods.agreedBet().call()
-    game.updateAgreedBet(agreedBet)
-    const playerTurn = await contract.value.methods.playerTurn().call()
-    game.updatePlayerTurn(playerTurn)
   }
 } catch (err) {
   showToast('Error', err.message)
@@ -93,15 +85,14 @@ const forfeit = () => {
   }
 }
 
-watchEffect(() => {
-  try {
-    contract.value.events.Won().on('data', () => {
-      router.push({ name: 'verify' })
-    })
-  } catch (err) {
-    showToast('Error', err.message)
+// TODO: check if working
+const route = useRoute()
+watch(
+  () => route.path,
+  async () => {
+    canReport.value = !(gamePhase.value === Phase.Withdraw || gamePhase.value === Phase.End)
   }
-})
+)
 
 watchEffect(() => {
   try {

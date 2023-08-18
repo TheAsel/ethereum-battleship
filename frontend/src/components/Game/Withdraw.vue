@@ -1,13 +1,36 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import router from '@/router'
 import { contractBattleship, getEthAccounts, showToast } from '@/utils.js'
 
 const gameId = ref(localStorage.getItem('gameId'))
-const accounts = ref(await getEthAccounts())
-const contract = ref(await contractBattleship(gameId.value))
-const winner = ref((await contract.value.methods.winner().call()) === accounts.value[0])
+const accounts = ref()
+const contract = ref()
+const winner = ref()
+const verifiedWinner = ref()
+const winnerMsg = ref('')
+const loserMsg = ref('')
+const winnerScreen = ref(false)
 const withdrawn = ref(false)
+
+try {
+  accounts.value = await getEthAccounts()
+  contract.value = await contractBattleship(gameId.value)
+  winner.value = await contract.value.methods.winner().call()
+  verifiedWinner.value = await contract.value.methods.verifiedWinner().call()
+  winnerScreen.value = verifiedWinner.value === accounts.value[0]
+  if (winner.value != verifiedWinner.value) {
+    winnerMsg.value = 'Your opponent cheated! You won!'
+    loserMsg.value = 'Nice try cheater... you lost!'
+  } else {
+    winnerMsg.value = 'Congratulations, you won!'
+    loserMsg.value = 'You lost... Better luck next time!'
+  }
+} catch (err) {
+  showToast('Error', err.message)
+  router.push({ name: 'home' })
+}
 
 const withdraw = async () => {
   try {
@@ -40,10 +63,10 @@ const withdraw = async () => {
         </div>
       </div>
       <div class="col-6">
-        <div v-if="winner" class="d-grid gap-4 col-11 mx-auto">
+        <div v-if="winnerScreen" class="d-grid gap-4 col-11 mx-auto">
           <form class="row">
             <div class="col text-center">
-              <h3 v-if="!withdrawn">Congratulations, you won!</h3>
+              <h3 v-if="!withdrawn">{{ winnerMsg }}</h3>
               <h3 v-else>Prize added to your wallet. Thank you for playing!</h3>
             </div>
           </form>
@@ -57,7 +80,7 @@ const withdraw = async () => {
         <div v-else class="d-grid gap-4 col-11 mx-auto">
           <form class="row">
             <div class="col text-center">
-              <h3>You lost... Better luck next time!</h3>
+              <h3>{{ loserMsg }}</h3>
             </div>
           </form>
           <RouterLink class="btn btn-success" type="button" to="/">Back to Homepage</RouterLink>

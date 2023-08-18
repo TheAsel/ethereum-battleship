@@ -4,11 +4,13 @@ import router from '@/router'
 import { contractBattleship, getEthAccounts, showToast } from '@/utils.js'
 
 const gameId = ref(localStorage.getItem('gameId'))
-const gameBet = ref('')
-const accounts = ref(await getEthAccounts())
-const contract = ref(await contractBattleship(gameId.value))
+const gameBet = ref()
+const accounts = ref()
+const contract = ref()
 
 try {
+  accounts.value = await getEthAccounts()
+  contract.value = await contractBattleship(gameId.value)
   gameBet.value = await contract.value.methods.agreedBet().call()
 } catch (err) {
   showToast('Error', err.message)

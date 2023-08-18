@@ -8,8 +8,8 @@ if (!isConnected) {
   router.push({ name: 'home' })
 }
 
-const accounts = ref('')
-const contract = ref('')
+const accounts = ref()
+const contract = ref()
 const bet = ''
 
 try {

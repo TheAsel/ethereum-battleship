@@ -187,7 +187,7 @@ contract Battleship {
         uint8 shotIndex
     ) external isPlayerTurn playingPhase {
         address opponent = getOpponent(msg.sender);
-        uint lastIndex = players[opponent].shots.length - 1;
+        uint256 lastIndex = players[opponent].shots.length - 1;
         require(
             players[opponent].shots[lastIndex].index == index,
             "Stored and sent indexes of the shot to confirm don't match"
@@ -213,6 +213,72 @@ contract Battleship {
             players[opponent].shots[lastIndex].value = Cell.Miss;
         }
         takeShot(shotIndex);
+    }
+
+    // verifies the cells of the winner's board that haven't been shot
+    function boardCheck(
+        uint8[] memory indexes,
+        bool[] memory cells,
+        uint256[] memory salts,
+        bytes32[] memory proof,
+        bool[] memory proofFlags
+    ) external verifyingPhase {
+        require(msg.sender == winner, "Only the winner can send the board");
+        require(
+            indexes.length == cells.length,
+            "Must send all indexes, cells and salts"
+        );
+        require(
+            indexes.length == salts.length,
+            "Must send all indexes, cells and salts"
+        );
+        address opponent = getOpponent(msg.sender);
+        if (
+            !merkleMultiVerify(
+                proof,
+                proofFlags,
+                players[msg.sender].treeRoot,
+                indexes,
+                cells,
+                salts
+            )
+        ) {
+            declareWinner(opponent);
+            return;
+        }
+        // board checks, if something is wrong the opponent wins by default
+        uint8 ships = 0;
+        for (uint8 i = 0; i < indexes.length; i++) {
+            // checks the validity of the indexes
+            if (indexes[i] >= BOARD_SIZE) {
+                declareWinner(opponent);
+                return;
+            }
+            // checks that all the opponent's shots have been registered
+            if (players[opponent].shotsMap[indexes[i]]) {
+                declareWinner(opponent);
+                return;
+            }
+            // ticks the verified cells
+            players[opponent].shotsMap[indexes[i]] = true;
+            // counts the ships missed by the opponent
+            if (cells[i]) {
+                ships++;
+            }
+        }
+        // checks that every cell has been verified
+        for (uint8 i = 0; i < BOARD_SIZE; i++) {
+            if (!players[opponent].shotsMap[i]) {
+                declareWinner(opponent);
+                return;
+            }
+        }
+        // checks that the correct number of ships was placed
+        if (players[msg.sender].hits + ships == SHIP_COUNT) {
+            declareWinner(msg.sender);
+        } else {
+            declareWinner(opponent);
+        }
     }
 
     // returns the shots taken by a player
@@ -266,6 +332,26 @@ contract Battleship {
             bytes.concat(keccak256(abi.encode(index, ship, salt)))
         );
         return MerkleProof.verify(proof, players[msg.sender].treeRoot, leaf);
+    }
+
+    // multiproof that verifies the values are contained in the tree
+    function merkleMultiVerify(
+        bytes32[] memory proof,
+        bool[] memory proofFlags,
+        bytes32 root,
+        uint8[] memory indexes,
+        bool[] memory cells,
+        uint256[] memory salts
+    ) internal pure returns (bool) {
+        bytes32[] memory leaves = new bytes32[](indexes.length);
+        for (uint8 i = 0; i < leaves.length; i++) {
+            leaves[i] = keccak256(
+                bytes.concat(
+                    keccak256(abi.encode(indexes[i], cells[i], salts[i]))
+                )
+            );
+        }
+        return MerkleProof.multiProofVerify(proof, proofFlags, root, leaves);
     }
 
     // returns the address of the sender's opponent

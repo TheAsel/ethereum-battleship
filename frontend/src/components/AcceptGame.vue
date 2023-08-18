@@ -11,10 +11,10 @@ import {
 } from '@/utils.js'
 
 const gameId = ref(localStorage.getItem('gameId'))
-const gameCreator = ref('')
-const gameBet = ref('')
-const accounts = ref('')
-const contract = ref('')
+const accounts = ref()
+const contract = ref()
+const gameCreator = ref()
+const gameBet = ref()
 
 try {
   accounts.value = await getEthAccounts()
