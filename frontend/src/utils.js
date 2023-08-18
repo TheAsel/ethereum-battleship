@@ -5,6 +5,10 @@ import { useMetaMaskWallet } from 'vue-connect-wallet'
 
 const wallet = useMetaMaskWallet()
 
+export const BOARD_SIDE = 8
+export const BOARD_SIZE = BOARD_SIDE * BOARD_SIDE
+export const SHIP_COUNT = 10
+
 export const isConnected = async () => {
   const accounts = await wallet.getAccounts()
   if (typeof accounts === 'string') return false

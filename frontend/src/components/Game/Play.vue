@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watchEffect } from 'vue'
 import { GameStore } from '@/stores/store'
-import { contractBattleship, getEthAccounts, showToast } from '@/utils.js'
+import { BOARD_SIDE, BOARD_SIZE, contractBattleship, getEthAccounts, showToast } from '@/utils.js'
 import { StandardMerkleTree } from '@openzeppelin/merkle-tree'
 
 const game = GameStore()
@@ -13,8 +13,8 @@ const yourTurn = ref(playerTurn.value === accounts.value[0])
 const board = JSON.parse(localStorage.getItem('board'))
 const tree = StandardMerkleTree.load(JSON.parse(localStorage.getItem('tree')))
 const opponent = ref(game.getOpponent)
-const yourShots = ref(new Array(64))
-const opponentShots = ref(new Array(64))
+const yourShots = ref(new Array(BOARD_SIZE))
+const opponentShots = ref(new Array(BOARD_SIZE))
 const unconfirmedShot = ref()
 
 const updateShots = async () => {
@@ -45,14 +45,14 @@ const canShoot = (row, col) => {
 const cellValue = (row, col, yourBoard) => {
   try {
     var cellValue = ''
-    const pos = (row - 1) * 8 + col - 1
+    const pos = (row - 1) * BOARD_SIDE + col - 1
     if (yourBoard) {
       cellValue = board._value[pos] ? 'ship' : ''
     }
     const playerShots = !yourBoard ? yourShots.value : opponentShots.value
-    const shot = playerShots.filter((i) => parseInt(i.index) === pos)
-    if (shot.length > 0) {
-      switch (shot[0].value) {
+    const cell = playerShots.filter((i) => parseInt(i.index) === pos)
+    if (cell.length > 0) {
+      switch (cell[0].value) {
         case Cell.Unconfirm:
           cellValue = 'unconfirm'
           break
@@ -75,7 +75,7 @@ const cellValue = (row, col, yourBoard) => {
 const shoot = async (row, col) => {
   try {
     if (canShoot(row, col)) {
-      const pos = (row - 1) * 8 + col - 1
+      const pos = (row - 1) * BOARD_SIDE + col - 1
       const firstShot = unconfirmedShot.value.length === 0
       if (firstShot) {
         await contract.value.methods.shoot(pos).send({ from: accounts.value[0] })
@@ -136,11 +136,11 @@ watchEffect(() => {
           <caption>
             Opponent's board:
           </caption>
-          <tr v-for="opprow in 8" :key="opprow">
+          <tr v-for="opprow in BOARD_SIDE" :key="opprow">
             <td
               @click="shoot(opprow, oppcol)"
               :class="{ crosshair: canShoot(opprow, oppcol) }"
-              v-for="oppcol in 8"
+              v-for="oppcol in BOARD_SIDE"
               :key="oppcol"
             >
               <div :class="cellValue(opprow, oppcol, false)"></div>
@@ -158,8 +158,8 @@ watchEffect(() => {
           <caption>
             Your board:
           </caption>
-          <tr v-for="yourrow in 8" :key="yourrow">
-            <td v-for="yourcol in 8" :key="yourcol">
+          <tr v-for="yourrow in BOARD_SIDE" :key="yourrow">
+            <td v-for="yourcol in BOARD_SIDE" :key="yourcol">
               <div :class="cellValue(yourrow, yourcol, true)"></div>
             </td>
           </tr>

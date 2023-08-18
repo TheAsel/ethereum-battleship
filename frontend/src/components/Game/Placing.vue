@@ -2,23 +2,30 @@
 import { ref, watchEffect } from 'vue'
 import router from '@/router'
 import { GameStore } from '@/stores/store'
-import { contractBattleship, getEthAccounts, showToast } from '@/utils.js'
+import {
+  BOARD_SIDE,
+  BOARD_SIZE,
+  SHIP_COUNT,
+  contractBattleship,
+  getEthAccounts,
+  showToast
+} from '@/utils.js'
 import { StandardMerkleTree } from '@openzeppelin/merkle-tree'
 
 const game = GameStore()
 const gameId = ref(localStorage.getItem('gameId'))
-const selected = ref(new Array(64).fill(false))
+const selected = ref(new Array(BOARD_SIZE).fill(false))
 const placed = ref(0)
 const accounts = ref(await getEthAccounts())
 const contract = ref(await contractBattleship(gameId.value))
 
 const isPlaced = (row, col) => {
-  return selected.value[(row - 1) * 8 + col - 1]
+  return selected.value[(row - 1) * BOARD_SIDE + col - 1]
 }
 
 const place = (row, col) => {
-  const pos = (row - 1) * 8 + col - 1
-  if ((placed.value < 10 && !selected.value[pos]) || selected.value[pos]) {
+  const pos = (row - 1) * BOARD_SIDE + col - 1
+  if ((placed.value < SHIP_COUNT && !selected.value[pos]) || selected.value[pos]) {
     selected.value[pos] = !selected.value[pos]
     countPlaced()
   } else {
@@ -80,17 +87,17 @@ watchEffect(() => {
       <div class="col-5">
         <h3>Instructions</h3>
         <p>
-          Select 10 cells to decide where to place your ships. When you're done, click "Commit
-          board" and wait for your opponent to be ready.
+          Select {{ SHIP_COUNT }} cells to decide where to place your ships. When you're done, click
+          "Commit board" and wait for your opponent to be ready.
         </p>
-        <p>Left to place: {{ 10 - placed }}</p>
+        <p>Left to place: {{ SHIP_COUNT - placed }}</p>
         <div class="row">
           <div class="col">
             <button
               class="btn btn-success"
               type="button"
               @click="commitBoard"
-              v-bind:disabled="placed !== 10"
+              v-bind:disabled="placed !== SHIP_COUNT"
             >
               Commit board
             </button>
@@ -105,8 +112,8 @@ watchEffect(() => {
       <div class="col-6">
         <div class="d-grid gap-3 col-9 mx-auto">
           <table class="table">
-            <tr v-for="row in 8" :key="row">
-              <td v-for="col in 8" :key="col" @click="place(row, col)">
+            <tr v-for="row in BOARD_SIDE" :key="row">
+              <td v-for="col in BOARD_SIDE" :key="col" @click="place(row, col)">
                 <div :class="{ ship: isPlaced(row, col) }"></div>
               </td>
             </tr>

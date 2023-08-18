@@ -4,6 +4,12 @@ pragma solidity >=0.8.0 <0.9.0;
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract Battleship {
+    // ---- Local constants
+    // number of cells in the board (default: 8 * 8 = 64)
+    uint8 constant BOARD_SIZE = 64;
+    // number of ships for each player (default: 10)
+    uint8 constant SHIP_COUNT = 10;
+
     // ---- Local variables
     address public playerOne;
     address public playerTwo;
@@ -163,7 +169,7 @@ contract Battleship {
         if (ship) {
             playerShots[opponent][lastIndex].value = Cell.Sunk;
             playerHits[msg.sender]++;
-            if (playerHits[msg.sender] == 10) {
+            if (playerHits[msg.sender] == SHIP_COUNT) {
                 // TODO: all ships sunk, opponent wins
                 return;
             }
@@ -190,7 +196,7 @@ contract Battleship {
             !playerShotsMap[msg.sender][index],
             "That cell has already been shot"
         );
-        require(index < 64, "Invalid cell index");
+        require(index < BOARD_SIZE, "Invalid cell index");
         playerShots[msg.sender].push(Shot(index, Cell.Unconfirm));
         playerShotsMap[msg.sender][index] = true;
         playerTurn = playerTurn == playerOne ? playerTwo : playerOne;
