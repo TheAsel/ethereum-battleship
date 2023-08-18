@@ -24,6 +24,9 @@ const updateShots = async () => {
     yourShots.value = await contract.value.methods.getPlayerShots(accounts.value[0]).call()
     opponentShots.value = await contract.value.methods.getPlayerShots(opponent.value).call()
     unconfirmedShot.value = opponentShots.value.filter((i) => i.value === Cell.Unconfirm)
+    if (yourTurn.value) {
+      showToast('Your turn', "It's your turn! Click a cell to take a shot", 'text-bg-success')
+    }
   } catch (err) {
     showToast('Error', err.message)
   }
@@ -95,10 +98,7 @@ const shoot = async (row, col) => {
 
 watchEffect(() => {
   try {
-    contract.value.events.ShotTaken().on('data', (data) => {
-      if (data.returnValues.player === opponent.value) {
-        showToast('Your turn', "Your opponent took a shot! It's now your turn", 'text-bg-success')
-      }
+    contract.value.events.ShotTaken().on('data', () => {
       updateShots()
     })
   } catch (err) {

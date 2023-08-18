@@ -14,16 +14,19 @@ contract Battleship {
     address public playerOne;
     address public playerTwo;
     uint256 public agreedBet;
-    mapping(address => bool) payedBet;
-    mapping(address => bytes32) playerTreeRoot;
     address public playerTurn;
+    address public winner;
+    address public verifiedWinner;
 
     // various phases of the game
     enum Phase {
         Waiting,
         Paying,
         Placing,
-        Playing
+        Playing,
+        Verifying,
+        Withdraw,
+        End
     }
 
     // the current phase of the game
@@ -42,9 +45,16 @@ contract Battleship {
         Cell value;
     }
 
-    mapping(address => Shot[]) playerShots;
-    mapping(address => mapping(uint8 => bool)) playerShotsMap;
-    mapping(address => uint8) playerHits;
+    // player's information
+    struct Player {
+        bool payedBet;
+        bytes32 treeRoot;
+        Shot[] shots;
+        mapping(uint8 => bool) shotsMap;
+        uint8 hits;
+    }
+
+    mapping(address => Player) players;
 
     // ---- Events
     // emitted when both players paid the bet
@@ -52,11 +62,15 @@ contract Battleship {
     // emitted when both players placed their ships
     event GameStart();
     // emitted when a player takes a shot
-    event ShotTaken(address indexed player);
+    event ShotTaken();
+    // emitted when the game is won by someone
+    event Won();
+    // emitted when the winner is verified
+    event WinnerVerified();
 
     // ---- Modifiers
     // checks that the sender is player one or two
-    modifier players() {
+    modifier isPlayer() {
         require(
             msg.sender == playerOne || msg.sender == playerTwo,
             "You aren't a player of this game"
@@ -103,6 +117,22 @@ contract Battleship {
         _;
     }
 
+    modifier verifyingPhase() {
+        require(
+            gamePhase == Phase.Verifying,
+            "This game isn't in the verifying phase"
+        );
+        _;
+    }
+
+    modifier withdrawPhase() {
+        require(
+            gamePhase == Phase.Withdraw,
+            "This game isn't in the withdraw phase"
+        );
+        _;
+    }
+
     // ---- External functions
     // contract constructor
     constructor(address creator, uint256 bet) {
@@ -118,21 +148,25 @@ contract Battleship {
     }
 
     // deposits the agreed bet and adds the second player
-    function depositBet() external payable players payingPhase {
-        require(!payedBet[msg.sender], "Bet already deposited");
+    function depositBet() external payable isPlayer payingPhase {
+        require(!players[msg.sender].payedBet, "Bet already deposited");
         require(msg.value == agreedBet, "Must pay the agreed amount");
-        payedBet[msg.sender] = true;
-        if (payedBet[playerOne] && payedBet[playerTwo]) {
+        players[msg.sender].payedBet = true;
+        if (players[playerOne].payedBet && players[playerTwo].payedBet) {
             gamePhase = Phase.Placing;
             emit BetPayed();
         }
     }
 
     // saves the Merkle tree root of the sender
-    function commitBoard(bytes32 merkleTreeRoot) external players placingPhase {
-        require(playerTreeRoot[msg.sender] == 0, "Board already committed");
-        playerTreeRoot[msg.sender] = merkleTreeRoot;
-        if (playerTreeRoot[playerOne] != 0 && playerTreeRoot[playerTwo] != 0) {
+    function commitBoard(
+        bytes32 merkleTreeRoot
+    ) external isPlayer placingPhase {
+        require(players[msg.sender].treeRoot == 0, "Board already committed");
+        players[msg.sender].treeRoot = merkleTreeRoot;
+        if (
+            players[playerOne].treeRoot != 0 && players[playerTwo].treeRoot != 0
+        ) {
             gamePhase = Phase.Playing;
             playerTurn = playerOne;
             emit GameStart();
@@ -153,28 +187,30 @@ contract Battleship {
         uint8 shotIndex
     ) external isPlayerTurn playingPhase {
         address opponent = getOpponent(msg.sender);
-        uint lastIndex = playerShots[opponent].length - 1;
+        uint lastIndex = players[opponent].shots.length - 1;
         require(
-            playerShots[opponent][lastIndex].index == index,
+            players[opponent].shots[lastIndex].index == index,
             "Stored and sent indexes of the shot to confirm don't match"
         );
         require(
-            playerShots[opponent][lastIndex].value == Cell.Unconfirm,
+            players[opponent].shots[lastIndex].value == Cell.Unconfirm,
             "Invalid cell value"
         );
         if (!merkleVerify(index, ship, salt, proof)) {
-            // TODO: proof not verified, opponent wins
+            declareWinner(opponent);
             return;
         }
         if (ship) {
-            playerShots[opponent][lastIndex].value = Cell.Sunk;
-            playerHits[msg.sender]++;
-            if (playerHits[msg.sender] == SHIP_COUNT) {
-                // TODO: all ships sunk, opponent wins
+            players[opponent].shots[lastIndex].value = Cell.Sunk;
+            players[msg.sender].hits++;
+            if (players[msg.sender].hits == SHIP_COUNT) {
+                winner = opponent;
+                gamePhase = Phase.Verifying;
+                emit Won();
                 return;
             }
         } else {
-            playerShots[opponent][lastIndex].value = Cell.Miss;
+            players[opponent].shots[lastIndex].value = Cell.Miss;
         }
         takeShot(shotIndex);
     }
@@ -183,24 +219,30 @@ contract Battleship {
     function getPlayerShots(
         address player
     ) external view returns (Shot[] memory) {
-        return playerShots[player];
+        return players[player].shots;
     }
 
     // reports the opponent
-    function report() external players {}
+    function report() external isPlayer {}
+
+    // forfeits the game
+    function forfeit() external isPlayer {
+        address opponent = getOpponent(msg.sender);
+        declareWinner(opponent);
+    }
 
     // ---- Internal functions
     // takes a shot given an index
     function takeShot(uint8 index) internal {
         require(
-            !playerShotsMap[msg.sender][index],
+            !players[msg.sender].shotsMap[index],
             "That cell has already been shot"
         );
         require(index < BOARD_SIZE, "Invalid cell index");
-        playerShots[msg.sender].push(Shot(index, Cell.Unconfirm));
-        playerShotsMap[msg.sender][index] = true;
+        players[msg.sender].shots.push(Shot(index, Cell.Unconfirm));
+        players[msg.sender].shotsMap[index] = true;
         playerTurn = playerTurn == playerOne ? playerTwo : playerOne;
-        emit ShotTaken(msg.sender);
+        emit ShotTaken();
     }
 
     // verifies that the value is contained in the tree
@@ -213,11 +255,19 @@ contract Battleship {
         bytes32 leaf = keccak256(
             bytes.concat(keccak256(abi.encode(index, ship, salt)))
         );
-        return MerkleProof.verify(proof, playerTreeRoot[msg.sender], leaf);
+        return MerkleProof.verify(proof, players[msg.sender].treeRoot, leaf);
     }
 
     // returns the address of the sender's opponent
     function getOpponent(address sender) internal view returns (address) {
         return sender == playerOne ? playerTwo : playerOne;
+    }
+
+    // sets player as the game's winner
+    function declareWinner(address player) internal {
+        winner = player;
+        verifiedWinner = player;
+        gamePhase = Phase.Withdraw;
+        emit WinnerVerified();
     }
 }

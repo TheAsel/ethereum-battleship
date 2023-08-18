@@ -50,6 +50,16 @@ const router = createRouter({
           path: 'play',
           name: 'play',
           component: () => import('../views/Game/PlayView.vue')
+        },
+        {
+          path: 'verify',
+          name: 'verify',
+          component: () => import('../views/Game/VerifyView.vue')
+        },
+        {
+          path: 'withdraw',
+          name: 'withdraw',
+          component: () => import('../views/Game/WithdrawView.vue')
         }
       ]
     }
