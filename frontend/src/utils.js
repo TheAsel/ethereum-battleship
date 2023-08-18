@@ -39,6 +39,14 @@ export const contractBattleship = (address) => {
 }
 
 export const showToast = (header = '', body = '', type = 'text-bg-danger') => {
+  const duplicates = Array.from(document.querySelectorAll('.toast-body')).filter((h) =>
+    h.textContent.includes(body)
+  )
+  if (typeof duplicates != 'undefined') {
+    for (let i = 0; i < duplicates.length; i++) {
+      duplicates[i].parentElement.parentElement.remove()
+    }
+  }
   bootstrap.showToast({
     header: header,
     headerSmall: 'just now',

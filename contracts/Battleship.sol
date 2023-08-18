@@ -231,6 +231,16 @@ contract Battleship {
         declareWinner(opponent);
     }
 
+    // transfers the contract's balance to the winner's wallet
+    function withdraw() external withdrawPhase {
+        require(
+            msg.sender == verifiedWinner,
+            "Only the winner can withdraw the prize"
+        );
+        gamePhase = Phase.End;
+        payable(msg.sender).transfer(address(this).balance);
+    }
+
     // ---- Internal functions
     // takes a shot given an index
     function takeShot(uint8 index) internal {

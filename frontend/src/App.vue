@@ -24,6 +24,7 @@ const connect = async () => {
 const switchAccount = async () => {
   await wallet.switchAccounts()
   connect()
+  window.location.reload()
 }
 
 if (isConnected) {

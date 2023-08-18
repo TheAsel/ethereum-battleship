@@ -75,18 +75,18 @@ const cellValue = (row, col, yourBoard) => {
   }
 }
 
-const shoot = async (row, col) => {
+const shoot = (row, col) => {
   try {
     if (canShoot(row, col)) {
       const pos = (row - 1) * BOARD_SIDE + col - 1
       const firstShot = unconfirmedShot.value.length === 0
       if (firstShot) {
-        await contract.value.methods.shoot(pos).send({ from: accounts.value[0] })
+        contract.value.methods.shoot(pos).send({ from: accounts.value[0] })
       } else {
         const posCheck = parseInt(unconfirmedShot.value[0].index)
         const values = tree.values.find((v) => v.value[0] === posCheck).value
         const proof = tree.getProof(posCheck)
-        await contract.value.methods
+        contract.value.methods
           .confirmAndShoot(values[0], values[1], window.BigInt(values[2]), proof, pos)
           .send({ from: accounts.value[0] })
       }

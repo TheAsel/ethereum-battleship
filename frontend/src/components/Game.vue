@@ -56,6 +56,9 @@ try {
       case Phase.Withdraw:
         router.push({ name: 'withdraw' })
         break
+      case Phase.End:
+        router.push({ name: 'gome' })
+        break
       default:
         router.push({ name: 'home' })
         break
