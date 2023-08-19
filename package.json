@@ -1,14 +1,14 @@
 {
-    "name": "ethereum-battleship-contracts",
-    "version": "1.0.0",
-    "description": "Project for P2P Systems and Blockchains - UniPi 2022/2023",
-    "author": "TheAsel",
-    "license": "MIT",
-    "dependencies": {
-        "merkletreejs": "^0.3.10",
-        "@openzeppelin/contracts": "^4.9.3"
-    },
-    "devDependencies": {
-        "truffle-assertions": "^0.9.2"
+  "name": "ethereum-battleship-contracts",
+  "version": "1.0.0",
+  "description": "Project for P2P Systems and Blockchains - UniPi 2022/2023",
+  "author": "TheAsel",
+  "license": "MIT",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.3"
+  },
+  "devDependencies": {
+    "@openzeppelin/merkle-tree": "^1.0.5",
+    "truffle-assertions": "^0.9.2"
   }
 }

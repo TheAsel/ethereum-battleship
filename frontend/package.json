@@ -1,6 +1,9 @@
 {
-  "name": "frontend",
-  "version": "0.0.0",
+  "name": "ethereum-battleship-frontend",
+  "version": "1.0.0",
+  "description": "Project for P2P Systems and Blockchains - UniPi 2022/2023",
+  "author": "TheAsel",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "dev": "vite",

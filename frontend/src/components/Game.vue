@@ -14,6 +14,7 @@ const accounts = ref()
 const contract = ref()
 const gamePhase = ref()
 const canReport = ref(false)
+const successToast = 'text-bg-success'
 
 const Phase = {
   Waiting: window.BigInt(0),
@@ -75,6 +76,16 @@ const report = () => {
   }
 }
 
+const verify = () => {
+  try {
+    if (canReport.value) {
+      contract.value.methods.verifyReport().send({ from: accounts.value[0] })
+    }
+  } catch (err) {
+    showToast('Error', err.message)
+  }
+}
+
 const forfeit = () => {
   try {
     if (canReport.value) {
@@ -100,8 +111,64 @@ watch(
 
 watchEffect(() => {
   try {
+    contract.value.events.GameWon().on('data', () => {
+      router.push({ name: 'verify' })
+    })
+  } catch (err) {
+    showToast('Error', err.message)
+  }
+})
+
+watchEffect(() => {
+  try {
     contract.value.events.WinnerVerified().on('data', () => {
       router.push({ name: 'withdraw' })
+    })
+  } catch (err) {
+    showToast('Error', err.message)
+  }
+})
+
+watchEffect(() => {
+  try {
+    contract.value.events.GameWon().on('data', () => {
+      router.push({ name: 'verify' })
+    })
+  } catch (err) {
+    showToast('Error', err.message)
+  }
+})
+
+watchEffect(() => {
+  try {
+    contract.value.events.PlayerReported().on('data', (data) => {
+      data.returnValues.player === accounts.value[0]
+        ? showToast("You've been reported", "Make a move before 5 block are mined or you'll lose")
+        : showToast(
+            'Opponent reported',
+            "If the opponent doesn't move before 5 blocks are mined you'll win",
+            successToast
+          )
+    })
+  } catch (err) {
+    showToast('Error', err.message)
+  }
+})
+
+watchEffect(() => {
+  try {
+    contract.value.events.PlayerMoved().on('data', (data) => {
+      data.returnValues.player === accounts.value[0]
+        ? showToast(
+            'No longer reported',
+            'You moved in time, you can continue to play',
+            successToast
+          )
+        : showToast(
+            'Opponent no longer reported',
+            'Your opponent moved in time, the game will continue',
+            successToast
+          )
     })
   } catch (err) {
     showToast('Error', err.message)
@@ -113,12 +180,14 @@ watchEffect(() => {
   <div class="card border-success m-2">
     <div class="d-flex">
       <div class="card-body">Game ID: {{ gameId }}</div>
-      <button v-if="canReport" class="btn btn-warning m-2" type="button" @click="forfeit">
-        Forfeit
-      </button>
-      <button v-if="canReport" class="btn btn-danger m-2" type="button" @click="report">
-        Report opponent
-      </button>
+      <div v-if="canReport">
+        <button class="btn btn-warning m-2" type="button" @click="forfeit">Forfeit</button>
+        <div class="d-flex m-2">
+          <div class="vr"></div>
+        </div>
+        <button class="btn btn-success m-2" type="button" @click="verify">Verify opponent</button>
+        <button class="btn btn-danger m-2" type="button" @click="report">Report opponent</button>
+      </div>
     </div>
   </div>
   <RouterView />

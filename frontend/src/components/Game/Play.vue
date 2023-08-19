@@ -117,16 +117,6 @@ watchEffect(() => {
     showToast('Error', err.message)
   }
 })
-
-watchEffect(() => {
-  try {
-    contract.value.events.Won().on('data', () => {
-      router.push({ name: 'verify' })
-    })
-  } catch (err) {
-    showToast('Error', err.message)
-  }
-})
 </script>
 
 <template>

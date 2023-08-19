@@ -9,6 +9,8 @@ contract Battleship {
     uint8 constant BOARD_SIZE = 64;
     // number of ships for each player (default: 10)
     uint8 constant SHIP_COUNT = 10;
+    // number of mined blocks before a reported player loses
+    uint8 constant DELAY = 5;
 
     // ---- Local variables
     address public playerOne;
@@ -17,6 +19,7 @@ contract Battleship {
     address public playerTurn;
     address public winner;
     address public verifiedWinner;
+    uint256 timeout;
 
     // various phases of the game
     enum Phase {
@@ -52,6 +55,7 @@ contract Battleship {
         Shot[] shots;
         mapping(uint8 => bool) shotsMap;
         uint8 hits;
+        bool reported;
     }
 
     mapping(address => Player) players;
@@ -64,9 +68,13 @@ contract Battleship {
     // emitted when a player takes a shot
     event ShotTaken();
     // emitted when the game is won by someone
-    event Won();
+    event GameWon();
     // emitted when the winner is verified
     event WinnerVerified();
+    // emitted when a player is reported
+    event PlayerReported(address indexed player);
+    // emitted when a reported player made a move in time
+    event PlayerMoved(address indexed player);
 
     // ---- Modifiers
     // checks that the sender is player one or two
@@ -81,6 +89,18 @@ contract Battleship {
     // checks if it's the message sender's turn
     modifier isPlayerTurn() {
         require(msg.sender == playerTurn);
+        _;
+    }
+
+    // checks if you can report your opponent at this time
+    modifier canReport() {
+        _canReport();
+        _;
+    }
+
+    // checks if a reported player made a move before the timeout
+    modifier makeMove() {
+        _makeMove();
         _;
     }
 
@@ -148,7 +168,7 @@ contract Battleship {
     }
 
     // deposits the agreed bet and adds the second player
-    function depositBet() external payable isPlayer payingPhase {
+    function depositBet() external payable isPlayer payingPhase makeMove {
         require(!players[msg.sender].payedBet, "Bet already deposited");
         require(msg.value == agreedBet, "Must pay the agreed amount");
         players[msg.sender].payedBet = true;
@@ -161,7 +181,7 @@ contract Battleship {
     // saves the Merkle tree root of the sender
     function commitBoard(
         bytes32 merkleTreeRoot
-    ) external isPlayer placingPhase {
+    ) external isPlayer placingPhase makeMove {
         require(players[msg.sender].treeRoot == 0, "Board already committed");
         players[msg.sender].treeRoot = merkleTreeRoot;
         if (
@@ -174,7 +194,7 @@ contract Battleship {
     }
 
     // first shot, nothing to confirm
-    function shoot(uint8 index) external isPlayerTurn playingPhase {
+    function shoot(uint8 index) external isPlayerTurn playingPhase makeMove {
         takeShot(index);
     }
 
@@ -185,7 +205,7 @@ contract Battleship {
         uint256 salt,
         bytes32[] memory proof,
         uint8 shotIndex
-    ) external isPlayerTurn playingPhase {
+    ) external isPlayerTurn playingPhase makeMove {
         address opponent = getOpponent(msg.sender);
         uint256 lastIndex = players[opponent].shots.length - 1;
         require(
@@ -207,7 +227,7 @@ contract Battleship {
             if (players[msg.sender].hits == SHIP_COUNT) {
                 winner = opponent;
                 gamePhase = Phase.Verifying;
-                emit Won();
+                emit GameWon();
                 return;
             }
         } else {
@@ -223,7 +243,7 @@ contract Battleship {
         uint256[] memory salts,
         bytes32[] memory proof,
         bool[] memory proofFlags
-    ) external verifyingPhase {
+    ) external verifyingPhase makeMove {
         require(msg.sender == winner, "Only the winner can send the board");
         require(
             indexes.length == cells.length,
@@ -289,8 +309,30 @@ contract Battleship {
         return players[player].shots;
     }
 
-    // reports the opponent
-    function report() external isPlayer {}
+    // reports the opponent for inactivity
+    function report() external isPlayer canReport {
+        address opponent = getOpponent(msg.sender);
+        require(
+            !players[opponent].reported,
+            "You already reported your opponent"
+        );
+        players[opponent].reported = true;
+        timeout = block.number + DELAY;
+        emit PlayerReported(opponent);
+    }
+
+    // checks if the reported player made a move
+    function verifyReport() external isPlayer canReport {
+        address opponent = getOpponent(msg.sender);
+        require(players[opponent].reported, "You didn't report your opponent");
+        if (block.number >= timeout) {
+            winner = msg.sender;
+            declareWinner(msg.sender);
+        } else {
+            players[opponent].reported = false;
+            emit PlayerMoved(opponent);
+        }
+    }
 
     // forfeits the game
     function forfeit() external isPlayer {
@@ -366,5 +408,51 @@ contract Battleship {
         verifiedWinner = player;
         gamePhase = Phase.Withdraw;
         emit WinnerVerified();
+    }
+
+    // wrapped the modifiers with internal functions to reduce code size when deploying
+    function _canReport() private view {
+        address opponent = getOpponent(msg.sender);
+        require(
+            !players[msg.sender].reported,
+            "Can't report if you're reported yourself"
+        );
+        require(
+            gamePhase != Phase.Waiting &&
+                gamePhase != Phase.Withdraw &&
+                gamePhase != Phase.End,
+            "Can't report in this phase of the game"
+        );
+        if (gamePhase == Phase.Paying) {
+            require(
+                !players[opponent].payedBet,
+                "Can't report, your opponent already deposited"
+            );
+        } else if (gamePhase == Phase.Placing) {
+            require(
+                players[opponent].treeRoot == 0,
+                "Can't report, your opponent's board was already committed"
+            );
+        } else if (gamePhase == Phase.Playing) {
+            require(playerTurn == opponent, "Can't report, it's your turn");
+        } else if (gamePhase == Phase.Verifying) {
+            require(
+                winner == opponent,
+                "Can't report, you have to send your board"
+            );
+        }
+    }
+
+    function _makeMove() private {
+        if (players[msg.sender].reported) {
+            if (block.number < timeout) {
+                players[msg.sender].reported = false;
+                emit PlayerMoved(msg.sender);
+            } else if (block.number >= timeout) {
+                winner = msg.sender == playerOne ? playerTwo : playerOne;
+                declareWinner(winner);
+                return;
+            }
+        }
     }
 }
