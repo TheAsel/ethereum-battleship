@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0 <0.9.0;
+pragma solidity 0.8.19;
 
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
@@ -88,7 +88,7 @@ contract Battleship {
 
     // checks if it's the message sender's turn
     modifier isPlayerTurn() {
-        require(msg.sender == playerTurn);
+        require(msg.sender == playerTurn, "It's not your turn");
         _;
     }
 

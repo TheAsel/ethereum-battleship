@@ -41,7 +41,7 @@ const joinGame = () => {
 
 watchEffect(() => {
   try {
-    contract.value.events.GameJoined({ filter: { by: accounts.value[0] } }).on('data', () => {
+    contract.value.events.GameJoined({ filter: { player: accounts.value[0] } }).on('data', () => {
       localStorage.setItem('gameId', gameId.value)
       router.push({ name: 'deposit' })
     })

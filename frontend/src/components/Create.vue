@@ -31,7 +31,7 @@ const createGame = (bet) => {
 watchEffect(() => {
   try {
     contract.value.events
-      .GameCreated({ filter: { from: accounts.value[0] } })
+      .GameCreated({ filter: { creator: accounts.value[0] } })
       .on('data', (data) => {
         localStorage.setItem('gameId', data.returnValues.gameId)
         router.push({ name: 'waiting' })

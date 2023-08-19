@@ -180,7 +180,7 @@ watchEffect(() => {
   <div class="card border-success m-2">
     <div class="d-flex">
       <div class="card-body">Game ID: {{ gameId }}</div>
-      <div v-if="canReport">
+      <div v-if="canReport" class="d-flex">
         <button class="btn btn-warning m-2" type="button" @click="forfeit">Forfeit</button>
         <div class="d-flex m-2">
           <div class="vr"></div>

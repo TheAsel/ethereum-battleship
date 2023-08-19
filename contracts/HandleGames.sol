@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0 <0.9.0;
+pragma solidity 0.8.19;
 
 import "./Battleship.sol";
 
@@ -16,9 +16,9 @@ contract HandleGames {
 
     // ---- Events
     // emitted when a game is created
-    event GameCreated(Battleship gameId, address indexed from);
+    event GameCreated(Battleship gameId, address indexed creator);
     // emitted when a player joins a game
-    event GameJoined(Battleship indexed gameId, address indexed by);
+    event GameJoined(Battleship indexed gameId, address indexed player);
     // emitted when a game isn't found
     event GameNotFound(address indexed player);
     // emitted to give a game's info
