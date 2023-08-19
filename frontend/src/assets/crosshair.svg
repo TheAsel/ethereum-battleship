@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+
+<svg
+   width="100"
+   height="100"
+   viewBox="0 0 3 3"
+   fill="none"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="crosshair.svg"
+   inkscape:export-filename="crosshair.svg"
+   inkscape:export-xdpi="12"
+   inkscape:export-ydpi="12"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050" />
+  <path
+     d="m 1.5,0.14999992 v 0.59999996 m 0,1.49999992 v 0.6 m -1.35000008,-1.35 h 0.60000004 m 1.50000014,0 h 0.6 m -1.3500001,0 h 0.0015 m 1.0485001,0 c 0,0.5799 -0.4701,1.05 -1.0500001,1.05 -0.57989994,0 -1.05000146,-0.4701 -1.05000146,-1.05 0,-0.57989843 0.47010152,-1.0499999 1.05000006,-1.0499999 0.5799001,0 1.0500001,0.47010147 1.0500001,1.0499999 z"
+     stroke="#000000"
+     stroke-width="0.3"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="path1"
+     inkscape:label="path1"
+     style="display:inline;stroke:#dc3545;stroke-opacity:1" />
+</svg>
