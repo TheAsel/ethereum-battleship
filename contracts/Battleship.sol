@@ -197,6 +197,7 @@ contract Battleship {
             "Invalid cell value"
         );
         if (!merkleVerify(index, ship, salt, proof)) {
+            winner = opponent;
             declareWinner(opponent);
             return;
         }
@@ -294,6 +295,7 @@ contract Battleship {
     // forfeits the game
     function forfeit() external isPlayer {
         address opponent = getOpponent(msg.sender);
+        winner = opponent;
         declareWinner(opponent);
     }
 
@@ -361,7 +363,6 @@ contract Battleship {
 
     // sets player as the game's winner
     function declareWinner(address player) internal {
-        winner = player;
         verifiedWinner = player;
         gamePhase = Phase.Withdraw;
         emit WinnerVerified();

@@ -85,12 +85,16 @@ const forfeit = () => {
   }
 }
 
-// TODO: check if working
 const route = useRoute()
 watch(
   () => route.path,
   async () => {
-    canReport.value = !(gamePhase.value === Phase.Withdraw || gamePhase.value === Phase.End)
+    try {
+      gamePhase.value = await contract.value.methods.gamePhase().call()
+      canReport.value = !(gamePhase.value === Phase.Withdraw || gamePhase.value === Phase.End)
+    } catch (err) {
+      showToast('Error', err.message)
+    }
   }
 )
 
