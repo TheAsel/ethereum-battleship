@@ -16,8 +16,9 @@ try {
   showToast('Error', err.message)
 }
 
-const getRandomGame = () => {
+const getRandomGame = async () => {
   try {
+    accounts.value = await getEthAccounts()
     contract.value.methods.getRandomGame().send({ from: accounts.value[0] })
   } catch (err) {
     showToast('Error', err.message)

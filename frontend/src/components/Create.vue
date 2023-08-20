@@ -20,8 +20,9 @@ try {
   router.push({ name: 'home' })
 }
 
-const createGame = (bet) => {
+const createGame = async (bet) => {
   try {
+    accounts.value = await getEthAccounts()
     contract.value.methods.createGame(bet).send({ from: accounts.value[0] })
   } catch (err) {
     showToast('Error', err.message)

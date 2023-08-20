@@ -4,7 +4,7 @@ const Battleship = artifacts.require("Battleship");
 const StandardMerkleTree =
   require("@openzeppelin/merkle-tree").StandardMerkleTree;
 
-contract("Calculates the gas cost of a max-length game", (accounts) => {
+contract("Evaluates the gas cost of a max-length game", (accounts) => {
   let handle;
   let game;
   let address;
@@ -150,7 +150,7 @@ contract("Calculates the gas cost of a max-length game", (accounts) => {
   });
 });
 
-contract("Calculates the gas cost of the report functions", (accounts) => {
+contract("Evaluates the gas cost of the report functions", (accounts) => {
   let handle;
   let game;
   let address;
@@ -201,7 +201,7 @@ contract("Calculates the gas cost of the report functions", (accounts) => {
   });
 });
 
-contract("Calculates the gas cost of the forfeit function", (accounts) => {
+contract("Evaluates the gas cost of the forfeit function", (accounts) => {
   let handle;
   let game;
   let address;
