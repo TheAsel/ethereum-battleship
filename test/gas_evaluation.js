@@ -68,11 +68,13 @@ contract("Evaluates the gas cost of a max-length game", (accounts) => {
       await game.commitBoard(playerTwoTree.root, { from: playerTwo });
     });
 
+    // change this to 10 to test a min-length game instead
+    const shotsToTake = 63;
     it("Take 64 shots", async () => {
-      let tx = await game.shoot(63, { from: playerOne });
+      let tx = await game.shoot(shotsToTake, { from: playerOne });
       costs.push({ shoot: tx.receipt.gasUsed });
       let confirmAndShootSum = 0;
-      for (let i = 63; i >= 0; i--) {
+      for (let i = shotsToTake; i >= 0; i--) {
         value = playerOneTree.values.find((v) => v.value[0] == i).value;
         proof = playerOneTree.getProof(i);
         tx = await game.confirmAndShoot(
@@ -85,9 +87,13 @@ contract("Evaluates the gas cost of a max-length game", (accounts) => {
             from: playerTwo,
           }
         );
-        confirmAndShootSum += tx.receipt.gasUsed;
+        if (i == shotsToTake) {
+          costs.push({ confirmAndShoot: tx.receipt.gasUsed });
+        } else {
+          confirmAndShootSum += tx.receipt.gasUsed;
+        }
         if (i == 0) {
-          costs.push({ confirmAndShoot: confirmAndShootSum });
+          costs.push({ confirmAndShoot_TOT: confirmAndShootSum });
           break;
         }
         value = playerTwoTree.values.find((v) => v.value[0] == i).value;
@@ -102,6 +108,7 @@ contract("Evaluates the gas cost of a max-length game", (accounts) => {
             from: playerOne,
           }
         );
+        confirmAndShootSum += tx.receipt.gasUsed;
       }
     });
 
